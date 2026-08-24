@@ -1,0 +1,14 @@
+# QSS 45 final project: Python dependencies
+# pip install -r requirements.txt
+
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.6
+scipy>=1.9
+scikit-learn>=1.3
+statsmodels>=0.14
+xgboost>=2.0,<3.0
+shap>=0.44
+networkx>=3.0
+
+# nbformat / nbconvert are only needed if you regenerate notebooks programmatically
