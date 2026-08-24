@@ -2,36 +2,23 @@
 
 Two rules do the work here.
 
-Layout: captions are placed BELOW the figure box (negative y in figure
-coordinates) and the file is written with bbox_inches="tight", so matplotlib
-expands the saved bounding box to contain every artist. That is what stops
-suptitles being clipped and stops captions landing on tick labels, which are the
-two problems that come from mixing tight_layout with figure-level text.
+Layout: captions are placed below the figure box 
 
-Palette: an editorial rather than a default-matplotlib look. White ground, one
-dominant blue, burnt orange as the accent that marks whatever the figure is
-arguing about, and teal as a third categorical color used sparingly. White
-rather than a tinted ground, because a figure has to survive being dropped into
-a paper, a slide, and a web page without carrying one of those backgrounds with
-it.
+Palette: Not the default matplotlib look. White ground, one
+dominant blue, burnt orange as the accent, and teal as a third categorical 
+color used sparingly. 
 
-Text: every piece of text in every figure is black. Titles, axis labels, tick
-labels, annotations and source notes all render at full strength. Grey type is
-the default in most plotting styles and it is the first thing to disappear when
-a figure is printed, projected, or photocopied, so none is used here. Grey
-survives only as chart furniture, meaning gridlines and axis rules, where it is
-supposed to recede.
+Text: every piece of text in every figure is black. 
 """
 
 import matplotlib.pyplot as plt
 
-# Core palette. BLACK is the ink for every character in every figure.
+# Core palette. Black is the ink for every character in every figure.
 BLACK = "#000000"
-SLATE = BLACK          # kept as an alias: nothing is slate-grey any more
+SLATE = BLACK # kept so nothing is grey anymore
 
 PAPER = "#ffffff"
 
-# Chart furniture only. Never used for text.
 GRID = "#e4e7ea"
 RULE = "#9ba3ac"
 
@@ -55,9 +42,8 @@ INK = SLATE
 # gradient is legible even without reading the axis labels.
 INCOME_COLORS = [ORANGE, AMBER, MID, BLUE]
 
-# Unordered categories, maximally separable.
+# Unordered categories.
 CATEGORY_COLORS = [BLUE, ORANGE, TEAL, AMBER, MID, GREY]
-
 
 def use_paper_style():
     """Consistent, print-ready defaults for every figure in the project."""
@@ -68,8 +54,6 @@ def use_paper_style():
         "savefig.pad_inches": 0.16,
         "font.family": "DejaVu Sans",
         "font.size": 11,
-        # Titles run larger and heavier than matplotlib's default. The figure
-        # should carry its own argument at a glance.
         "axes.titlesize": 13.5,
         "axes.titleweight": "bold",
         "axes.titlecolor": BLACK,
@@ -98,8 +82,6 @@ def use_paper_style():
         "axes.facecolor": PAPER,
         "axes.prop_cycle": plt.cycler(color=CATEGORY_COLORS),
         "figure.constrained_layout.use": False,
-        # Panels need real air between them; the default 0.2 lets a long
-        # y-tick label from one panel land inside its neighbour.
         "figure.subplot.wspace": 0.42,
         "figure.subplot.hspace": 0.34,
     })
@@ -117,7 +99,6 @@ def style_axis(ax, axis="y"):
     for side in ("left", "bottom"):
         ax.spines[side].set_color(RULE)
     return ax
-
 
 def _scaled(fig, at_ten_inches, lo, hi):
     """Point size that holds a constant apparent size across figure widths.
