@@ -10,6 +10,7 @@
 %\onecolumn
 
 \usepackage{booktabs}
+\usepackage{float}
 
 \begin{document}
 
@@ -78,7 +79,7 @@ whether anyone is available in the household to absorb it.
 
 \paragraph{Related work.} Cross-national comparison has established that
 caregiving composition varies sharply with the structure of a country's
-long-term care system \cite{jang2012}, and microsimulation projects European
+long-term care system \cite{jang2012,oecd2023}, and microsimulation projects European
 informal care demand rising through 2050 \cite{cattaneo2025}. Work closest to
 this study examines how caregiving for adults with cognitive decline is
 distributed within and beyond the household \cite{geronb2025}. This paper
@@ -99,10 +100,11 @@ results in their own right.\Endparasplit
 
 \section*{Data}
 
-\paragraph{Source and window.} The Health and Retirement Study is a nationally
-representative biennial panel of US adults over 50 and their spouses, fielded by
-the Survey Research Center at the University of Michigan. This analysis uses the
-2022 Core final release together with the 2022 Tracker file. The 2022 wave
+\paragraph{Source and window.} The Health and Retirement Study \cite{hrs2022} is
+a nationally representative biennial panel of US adults over 50 and their
+spouses, fielded by the Survey Research Center at the University of Michigan.
+This analysis uses the 2022 Core final release together with the 2022 Tracker
+file. The 2022 wave
 contains 15,787 respondent records collected by in-person, telephone and web
 interview, with proxy interviews taken where a respondent could not self-report.
 Proxy status matters here because cognitive impairment is simultaneously a
@@ -546,89 +548,225 @@ causal estimate.
 
 \section*{Agentic Analysis}
 
-An AI assistant (Claude, Anthropic) was used throughout, for notebook
-scaffolding, figure code, and prose drafting, working from my research design
-and my reading of the HRS codebooks. The interaction was iterative rather than
-delegated: I specified the analysis, reviewed every output, and executed all
-code. Three episodes are worth recording because they illustrate different
-failure modes.
+An AI assistant (Claude, Anthropic) was used throughout. Transcripts are in
+\texttt{docs/agentic/}. This section is excluded from the page limit.
 
-\paragraph{What I accepted.} The assistant proposed the missing-indicator
-strategy over native NaN handling in gradient boosting, with the argument about
-SHAP contamination reproduced in the Data section. I accepted it after
-confirming the missingness pattern was non-random, and it survives as a
+My own role is quickly stated. I chose the research question, the outcome
+definition, the model families to compare, and the interaction hypotheses; I
+executed and read every line of code; and I traced every number I report back to
+a codebook or an output table. What follows spends its space on the four
+episodes where the assistant was wrong, because those are the transferable part.
+
+\paragraph{Rejected: a harmonization test that scored 100\%.} The first version
+of the crosswalk experiment reported perfect top-one accuracy for all three
+matchers, including a lexical baseline that should not have been competitive.
+Inspecting the ground-truth table explained it. The assistant had written the
+HRS side of the key itself, as paraphrases of the ELSA wording, and had drawn
+candidates from only 39 health variables. The matcher was scoring on words the
+assistant had planted and choosing among a shortlist it had pre-filtered.
+
+\emph{How it was wrong:} not a coding error. Every line ran, and the reported
+metric was correctly computed on the data it was given. The failure was in
+constructing an evaluation that could not produce a negative result. Rewriting
+the key from verbatim codebook labels and opening the candidate set to all 403
+ELSA derived variables dropped accuracy to 71\%, which is the number reported
+here. A confirmatory result had been manufactured by a badly built test, and
+nothing in the output signalled it.
+
+\paragraph{Rejected: a narrative written before the number existed.} Asked to
+examine household clustering, the assistant produced a paragraph explaining that
+clustering had inflated cross-validated performance and that grouped splitting
+corrected it. The direction was plausible and the prose was confident. The
+computation, run afterward, showed grouped cross-validation scoring
+\emph{higher} than naive splitting, with the gap smaller than the between-fold
+standard deviation.
+
+\emph{How it was wrong:} the explanation preceded the evidence and was fitted to
+the expected result rather than the observed one. Only 5.3\% of households
+contribute more than one respondent, so there is too little duplication to leak.
+Grouped splitting is retained as the defensible design, but the paper reports
+the non-result. Had I accepted the draft, the paper would have contained a
+fabricated finding that no reviewer could have caught from the text.
+
+\paragraph{Failure: two-tier target leakage, introduced by the assistant.} The
+nine care-network features were assistant-written and were not flagged as risky
+in the code or its comments. Including them lifted held-out $R^2$ from 0.087 to
+0.644.
+
+\emph{How it was wrong, tier one:} \texttt{net\_any\_formal} is true exactly
+when the informal share is below one. The feature and the outcome are two
+encodings of the same fact. This was caught in the first review pass, because
+the name says what it does.
+
+\emph{How it was wrong, tier two:} the kin-composition features are zero exactly
+when nobody in the roster is family, which is the same event as the informal
+share being zero. Ninety-four respondents have \texttt{net\_n\_kin\_types = 0}
+and their mean informal share is exactly 0.000. This survived a review pass and
+a correlation scan, because no single feature looked unusual on its own. It was
+found only by asking of each feature what event makes it zero. The assistant
+then described the corrected set as ``safe'' in its own commentary, which is the
+specific hazard: fluent, well-commented code carrying an error the fluency
+conceals.
+
+The root cause is structural rather than clerical. The outcome is
+\emph{constructed from} the helper roster, so every roster-derived feature is
+downstream of it by design. The operative test is not ``is this correlated with
+the outcome'' but ``could this have been known without knowing the outcome.''
+
+\paragraph{Failure: silently cropped figures.} A later revision produced figures
+whose titles were cut off in the saved files and whose captions rendered in a
+colour matching the background. The code looked correct.
+
+\emph{How it was wrong:} \texttt{shap.summary\_plot} mutates the active
+Matplotlib figure and the global \texttt{rcParams} as a side effect, so a title
+set before that call falls outside the saved bounding box. The assistant's first
+two fixes adjusted padding and layout parameters, treating the symptom; neither
+worked, and each was proposed with the same confidence as the last. The fix that
+held was structural: render each panel to its own file and composite afterward.
+An automated check now sweeps every rendered figure for ink touching the canvas
+edge, so the same failure cannot recur unnoticed.
+
+\paragraph{Accepted, and why.} One substantive proposal survived scrutiny: the
+missing-indicator strategy over native NaN handling in gradient boosting, on the
+argument that native handling contaminates SHAP attribution. I accepted it after
+confirming the missingness pattern was non-random, and it stands as a
 methodological commitment of the paper.
 
-\paragraph{What I rejected.} An early version of the harmonization experiment
-scored 100\% for all three matchers. Inspecting the ground-truth table showed
-why: the HRS labels had been written as paraphrases of the ELSA wording, so the
-lexical baseline was matching on words the assistant had itself introduced.
-Rewriting with verbatim codebook labels and expanding the candidate set from 39
-health variables to all 403 dropped accuracy to 71\% and made the experiment
-informative. A confirmatory result had been manufactured by a badly constructed
-test, and nothing in the output signalled it.
+\paragraph{What this implies.} All four failures share a shape: output that is
+internally consistent and externally wrong, produced with uniform confidence
+whether right or not. None would have been caught by a test suite, because the
+code did what it said. Each surfaced only when I asked what a quantity
+\emph{meant} rather than whether the script ran. AI assistance moved the
+bottleneck from writing code to verifying that the code answered the intended
+question, and the second is the harder job.
 
-\paragraph{Where the AI failed.} The leakage described above was
-\emph{introduced} by assistant-written feature-engineering code and was not
-flagged in it. The first tier was caught quickly. The second tier---the
-kin-composition features---survived one round of review and was found only by
-asking of each feature what event makes it zero. Notably, the assistant then
-also mislabelled the corrected feature set as ``safe'' in its own commentary,
-which is the specific danger: fluent, well-commented code carrying an error that
-the fluency conceals. A separate episode in the companion project produced a
-plausible narrative about household clustering inflating cross-validated
-performance; the data showed no such effect, and the narrative had been written
-before the number was computed.
+\section*{Appendix A. The remaining figures}
 
-\paragraph{A third failure, in presentation rather than analysis.} A later
-revision produced figures whose titles were silently cut off in the saved PNG
-files. The cause was not obvious from the code, which looked correct: the SHAP
-plotting library mutates the active Matplotlib figure and its global style
-settings as a side effect, so a title set before that call falls outside the
-saved bounding box and caption text renders in an invisible color. The
-assistant's first two attempted fixes addressed symptoms, adjusting padding and
-layout parameters, and neither worked. The eventual fix was structural, which is
-to render each panel to its own file and composite them afterward. The general
-shape of the failure is the same as the leakage: fluent code that looks right,
-producing output that is wrong in a way the code does not reveal.
+Four figures and three tables appear in the body. The pipeline produces sixteen
+figures and nineteen tables. The twelve held back are reproduced here with the
+captions they carry in the repository. This appendix and the Agentic Analysis
+section are excluded from the page limit.
 
-\paragraph{What this implies for the workflow.} AI assistance shifts the
-location of the work rather than removing it. Writing code became fast;
-verifying that the code answered the intended question became the binding
-constraint. The three failures above share a structure: in each case the
-assistant produced output that was internally consistent and externally wrong,
-and in each case the error surfaced only when I asked what a quantity
-\emph{meant} rather than whether the code ran. That is a poor fit for automated
-checking and a good fit for domain knowledge, which is an argument for keeping
-the researcher in the loop at the level of interpretation rather than
-syntax. Every result in this paper that I would defend orally is one where I
-traced the computation back to the codebook myself.
+\subsection*{A.1 Description}
 
-\Endparasplit
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f02_helper_composition.png}
+\caption{Who the helpers are, across all 4{,}481 helper records in HRS 2022
+Section G. Daughters outnumber sons roughly two to one, which is the pattern the
+caregiving literature would predict and is the closest thing here to a
+validation of the reconstructed roster.}
+\label{fig:b-helpers}
+\end{figure}
 
-\section*{Analyses not shown here}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f03_need_gradient.png}
+\caption{The unconditional need gradient, before it is split by living
+arrangement. Read alone this looks like need barely matters. Only splitting it,
+as in Fig.~\ref{fig:inter}, reveals that need matters a great deal for some
+households and not at all for others. The two figures are the same data.}
+\label{fig:b-gradient}
+\end{figure}
 
-Four figures and three tables appear in this paper. The pipeline produces sixteen
-figures and nineteen tables. The twelve figures held back are not weaker versions
-of the five included; they answer adjacent questions, and each carries a
-self-contained caption in the repository, numbered to match the script that
-writes it.
+\subsection*{A.2 Model comparison}
 
-Two extend the description: who the helpers are across all 4,481 records, and
-the unconditional need gradient before it is split by living arrangement. Two
-concern model comparison: importance rankings across four methods, and the
-weight and clustering diagnostics behind the claim that weighted and unweighted
-models describe different populations. Two concern the care networks, as ego
-graphs and as derived feature distributions, and one pairs the feature-block
-ablation with the final model's SHAP summary. Two support the crosswalk: the
-embedding space the matcher searches, and the per-item confidence margins that
-make its four errors identifiable in advance. The last decomposes the strongest
-interaction as a partial-dependence surface.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f05_importance_ranks.png}
+\caption{Importance-rank agreement across four methods. The
+coefficient-against-SHAP contrast in the body is one slice of this. Methods that
+answer different questions rank predictors differently, and the spread here is
+the reason a single importance ranking should not be reported on its own.}
+\label{fig:b-ranks}
+\end{figure}
 
-The seventeen omitted tables are the numeric backing for results stated in prose
-here, from the sample-construction audit and descriptives through the coefficient
-and cross-validation comparisons to the ablation ladder, the crosswalk with its
-per-item similarities, and the SHAP interaction pairs.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f10_neural_net.png}
+\caption{A neural network buys nothing on 2{,}142 rows of tabular survey data.
+Panel A searches seven architectures and finds none that beats the mean, with
+the best being the smallest. Panel B sweeps five $L_2$ penalties and improves
+monotonically toward the linear limit. Both are the signature of a model with
+far more parameters than the data can identify.}
+\label{fig:b-mlp}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f07_weights_and_clustering.png}
+\caption{Survey weights and household clustering. Weighting changes the
+estimand, because all 73 nursing-home residents carry no weight and are silently
+dropped. Household-grouped cross-validation scores \emph{higher} than naive
+splitting, which is the opposite of the expected direction and is reported as
+such.}
+\label{fig:b-weights}
+\end{figure}
+
+\subsection*{A.3 Care networks}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f08_care_networks.png}
+\caption{Four real care networks, drawn from Section G helper records and
+selected to span the structural range rather than sampled at random. Edge
+thickness is monthly care hours. The scalar covariates used in scripts 02--04
+cannot distinguish the first panel from the second: both are 100\% informal, but
+one rests on a single person and the other spreads across four.}
+\label{fig:b-networks}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f09_network_features.png}
+\caption{The features derived from those networks. Panel C reports simple
+Pearson correlations, not partial effects; they establish that the features move
+with the outcome, while the ablation in Fig.~\ref{fig:b-ablation} tests whether
+they add anything once the existing covariates are already in the model. They do
+not.}
+\label{fig:b-netfeat}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f12_ablation_and_shap.png}
+\caption{Feature-block ablation with the final model's SHAP summary. Blocks are
+added cumulatively under identical folds; the shaded band is one standard
+deviation across folds and is wide enough that the last two steps overlap, so
+the apparent gain from network structure is not distinguishable from noise.}
+\label{fig:b-ablation}
+\end{figure}
+
+\subsection*{A.4 The cross-national crosswalk}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f13_embedding_space.png}
+\caption{The embedding space the matcher searches: a t-SNE projection of LSA
+embeddings of variable descriptions, 14 HRS items against all 403 ELSA derived
+variables. Dashed lines connect each HRS item to its hand-coded true
+counterpart; short lines mean the embedding placed them close without being told
+they match. t-SNE distances are not metric, so read adjacency, not scale.}
+\label{fig:b-embed}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\linewidth]{figures/f16_shap_interactions.png}
+\caption{The strongest interaction decomposed directly. Panel A splits the
+sample by living arrangement and plots the mean informal share across quartiles
+of care intensity; non-parallel lines are the interaction. Panel B shows the
+SHAP interaction values for the same pair from the tuned booster.}
+\label{fig:b-shapinter}
+\end{figure}
+
+\subsection*{A.5 Omitted tables}
+
+Seventeen tables are the numeric backing for results stated in prose and are not
+reproduced here, running from the sample-construction audit and descriptives
+through the coefficient and cross-validation comparisons to the ablation ladder,
+the crosswalk with its per-item similarities, and the SHAP interaction pairs.
+All are committed as CSV in \texttt{output/tables/}.
 
 \section*{Materials and Methods}
 

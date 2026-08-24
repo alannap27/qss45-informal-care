@@ -240,7 +240,8 @@ caption(fig, f"HRS 2022, n = {len(df):,}. Panel A: cells with fewer than 25 resp
              "Panel C: mean absolute SHAP interaction values from the tuned booster, computed on a random 600-respondent subsample; these find interactions the model used rather than only those specified in advance.")
 savefig(fig, "f15_interaction_grid.png")
 
-# Figure 16: the single strongest interaction
+# Figure 16: the single strongest interaction, shown directly
+
 best = inter.iloc[0]
 f_, m_ = best["focal"], best["moderator"]
 fig, axes = plt.subplots(1, 2, figsize=(13.0, 6.3))
