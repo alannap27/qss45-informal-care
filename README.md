@@ -233,28 +233,35 @@ National Institute on Aging (U01AG009740).
 
 ## The full figure set
 
-| | Figure | Script |
-|---|---|---|
-| f01 | Informal care share and care intensity | 01 |
-| f02 | Who the helpers are | 01 |
-| f03 | Need gradient in the informal share | 01 |
-| f04 | OLS coefficients against SHAP values | 02 |
-| f05 | Importance rank agreement across methods | 02 |
-| f06 | Two-part and fractional-response models | 03 |
-| f07 | Survey weights and household clustering | 04 |
-| f08 | Care networks as ego graphs | 05 |
-| f09 | Network-derived features | 05 |
-| f10 | Neural network training and performance | 06 |
-| f11 | Target leakage, sprung and removed | 07 |
-| f12 | Feature-block ablation with SHAP | 07 |
-| f13 | Variable-description embedding space | 08 |
-| f14 | Semantic variable-matching accuracy | 08 |
-| f15 | Need by living arrangement, and interaction tests | 09 |
-| f16 | SHAP interaction decomposition | 09 |
+All sixteen are in the paper: four in the body, twelve in Appendix A.
+**Paper** is the number LaTeX assigns by order of appearance, which is what a
+reader cites; **Site** is what the website calls the same image.
+
+| | Figure | Script | Paper | Site |
+|---|---|---|---|---|
+| f01 | Informal care share and care intensity | 01 | Fig. 1 | Figure 5 |
+| f02 | Who the helpers are | 01 | Fig. 5 | gallery |
+| f03 | Need gradient in the informal share | 01 | Fig. 6 | gallery |
+| f04 | OLS coefficients against SHAP values | 02 | Fig. 2 | Figure 6 |
+| f05 | Importance rank agreement across methods | 02 | Fig. 7 | gallery |
+| f06 | Two-part and fractional-response models | 03 | Fig. 3 | gallery |
+| f07 | Survey weights and household clustering | 04 | Fig. 9 | gallery |
+| f08 | Care networks as ego graphs | 05 | Fig. 10 | gallery |
+| f09 | Network-derived features | 05 | Fig. 11 | gallery |
+| f10 | Neural network training and performance | 06 | Fig. 8 | gallery |
+| f11 | Target leakage, sprung and removed | 07 | Fig. 12 | Figure 9 |
+| f12 | Feature-block ablation with SHAP | 07 | Fig. 13 | gallery |
+| f13 | Variable-description embedding space | 08 | Fig. 14 | gallery |
+| f14 | Semantic variable-matching accuracy | 08 | Fig. 15 | Figure 8 |
+| f15 | Need by living arrangement, and interaction tests | 09 | Fig. 4 | Figure 7 |
+| f16 | SHAP interaction decomposition | 09 | Fig. 16 | gallery |
+
+The columns disagree because each document orders figures for its own reader:
+the file index is production order, the paper puts body figures first and holds
+the rest for the appendix, and the site follows its argument. 
 
 Every figure carries a self-contained caption naming its source and sample size,
 so it can be read without the surrounding text (as required).
-
 ---
 
 ## Paper and website
