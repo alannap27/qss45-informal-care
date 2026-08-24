@@ -212,13 +212,13 @@ except ImportError:
 
 ax.legend(fontsize=10.5, frameon=False, loc="upper left")
 ax.set_xticks([]); ax.set_yticks([])
-ax.set_title("Figure 13. HRS items land next to their ELSA counterparts in embedding space",
+ax.set_title("HRS items land next to their ELSA counterparts in embedding space",
              fontsize=15, pad=16)
 for side in ("top", "right", "bottom", "left"):
     ax.spines[side].set_visible(False)
 caption(fig, f"t-SNE projection of {Z.shape[1]}-dimensional LSA embeddings of variable descriptions: {len(hrs)} HRS items and all {len(health)} ELSA derived variables. Dashed grey lines connect each HRS item to "
              "its\nhand-coded true ELSA counterpart; short lines mean the embedding placed them close together without being told they match. t-SNE distances are not metric, so read adjacency, not scale. "
-             "The layout is\nillustrative; the accuracy figures in Figure 14 are computed on the full-dimensional cosine similarities, not on this projection.")
+             "The layout is\nillustrative; the accuracy figures in the following figure are computed on the full-dimensional cosine similarities, not on this projection.")
 savefig(fig, "f13_embedding_space.png")
 
 # Figure 14: does the embedding beat word overlap?
@@ -269,7 +269,7 @@ ax.legend(fontsize=8.5, frameon=False)
 ax.set_title("C. True pairs separate from the rest", fontsize=12)
 style_axis(ax)
 
-suptitle(fig, "Figure 14. Semantic matching recovers the HRS-ELSA crosswalk without hand coding")
+suptitle(fig, "Semantic matching recovers the HRS-ELSA crosswalk without hand coding")
 caption(fig, f"Scored on {len(hrs)} HRS items against all {len(health)} ELSA derived variables, with the correct counterpart coded by hand from both codebooks; random guessing would score {1/len(health):.1%} at top-1. Panel A: top-k accuracy, where top-3 means the "
              "true\nmatch appeared among the three highest-scoring candidates. Panel B: a small margin means the matcher was nearly indifferent between its first and second choice, which is where a human should review. "
              f"Panel C:\ntrue pairs score {np.mean(sim_true):.2f} on average against {sim_other.mean():.2f} for the {len(sim_other):,} non-matching pairs. Fourteen items is a small answer key; these numbers show the approach is viable, not that it is validated at scale.")

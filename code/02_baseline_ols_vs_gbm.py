@@ -178,7 +178,7 @@ ax.set_yticklabels(top.index, fontsize=9)
 ax.invert_yaxis()
 ax.set_xlabel("Importance rank (1 = most important)")
 ax.legend(fontsize=9, frameon=False, loc="lower right")
-ax.set_title("Figure 5. Two features move a long way between the two rankings", fontsize=12)
+ax.set_title("Two features move a long way between the two rankings", fontsize=12)
 for i, (f, r) in enumerate(zip(top.index, top["rank_gap"])):
     if abs(r) >= 10:
         ax.annotate(f"gap {int(abs(r))}", (max(top['ols_rank'].iloc[i], top['shap_rank'].iloc[i]) + 0.7, i),

@@ -171,7 +171,7 @@ ax.set_ylabel("Held-out $R^2$")
 ax.set_title("C. Respecification buys coherence,\nnot much predictive power", fontsize=12)
 style_axis(ax)
 
-suptitle(fig, "Figure 6. A bounded outcome with a spike at one needs a bounded likelihood")
+suptitle(fig, "A bounded outcome with a spike at one needs a bounded likelihood")
 caption(fig, f"HRS 2022, n = {len(Xte):,} held-out respondents. Panel A: red bands mark the impossible region: a share below 0 or above 1. Panel B: each point is a decile of predicted probability, sized by the "
              "number of\nrespondents in it; points on the diagonal mean predicted and observed frequencies agree. Panel C: all four models on the same held-out split. The two-part model is the only specification that is "
              "both\ncoherent and competitive, which is why it is carried forward as the preferred specification in scripts 04 and 08.")

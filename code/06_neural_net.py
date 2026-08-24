@@ -168,7 +168,7 @@ ax.set_xlabel("Clustered CV $R^2$")
 ax.set_title("C. The MLP does not beat the booster", fontsize=12)
 style_axis(ax, axis="x")
 
-suptitle(fig, "Figure 10. A neural network buys nothing on 2,142 rows of tabular survey data")
+suptitle(fig, "A neural network buys nothing on 2,142 rows of tabular survey data")
 caption(fig, f"HRS 2022, n = {len(df):,}, {X.shape[1]} features, scored by 5-fold GroupKFold on household so no household spans the train/test boundary. Panels A and B search over architecture and L2 penalty; the flat, "
              "noisy\nresponse to added capacity in Panel A and the improvement under heavier penalty in Panel B are both symptoms of a model with far more parameters than the data can identify. Error bars in Panel C are\n"
              "the standard deviation across the five folds and are wide enough to overlap, so the ordering between the top families should be read as 'indistinguishable', not as a ranking.")

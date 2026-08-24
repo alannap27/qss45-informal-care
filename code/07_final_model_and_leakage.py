@@ -175,7 +175,7 @@ ax.annotate(f"all {int((df.loc[df['net_any_formal']==0,'informal_share']==1).sum
 ax.set_ylim(-0.06, 1.12)
 style_axis(ax)
 
-suptitle(fig, "Figure 11. A target-leakage trap, sprung deliberately and then removed")
+suptitle(fig, "A target-leakage trap, sprung deliberately and then removed")
 caption(fig, f"HRS 2022, n = {len(df):,}, 5-fold GroupKFold on household. Panel A: error bars are the standard deviation across folds. The apparent improvement from the leaky features is {r2_leaky - r2_base:+.3f}, which on an outcome\n"
              "this degenerate would be an implausible finding rather than a good one. Panel B: the informal share falls below 1 exactly when a formal helper is present, so the feature and the outcome are two\n"
              "encodings of the same fact. Points are jittered horizontally for visibility. Neither leaky feature is used in the final model.")

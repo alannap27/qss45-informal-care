@@ -67,7 +67,7 @@ ax.set_ylabel("Respondents")
 ax.set_title("B. Care intensity is heavily right-skewed", fontsize=11)
 style_axis(ax)
 
-suptitle(fig, "Figure 1. Distribution of the outcome and of care intensity")
+suptitle(fig, "Distribution of the outcome and of care intensity")
 caption(fig, f"HRS 2022, n = {len(df):,} respondents receiving any help with ADLs or IADLs. Panel A: informal share = informal care hours / total care hours per month. "
              "Panel B is truncated\nat the physical ceiling of 24 hours x 31 days. The mass at 1.0 in Panel A is why a plain linear model is a poor match and why script 03 fits a two-part specification.")
 savefig(fig, "f01_outcome_and_intensity.png")
@@ -87,7 +87,7 @@ for i, v in enumerate(counts.values):
     ax.text(v + 8, i, str(v), va="center", fontsize=10)
 ax.set_xlabel("Number of helper records")
 ax.set_xlim(0, counts.max() * 1.14)
-ax.set_title("Figure 2. Daughters are the modal caregiver, ahead of spouses", fontsize=12)
+ax.set_title("Daughters are the modal caregiver, ahead of spouses", fontsize=12)
 handles = [plt.Rectangle((0, 0), 1, 1, color=BLUE), plt.Rectangle((0, 0), 1, 1, color=ORANGE)]
 ax.legend(handles, ["Informal (family, friends, neighbors)", "Formal (paid or institutional)"],
           fontsize=8.5, loc="lower right", frameon=False)
@@ -111,7 +111,7 @@ for i, (m, n) in enumerate(zip(grp["mean"], grp["size"])):
 ax.set_ylim(0, 1.06)
 ax.set_xlabel("Number of ADL limitations")
 ax.set_ylabel("Mean informal care share")
-ax.set_title("Figure 3. Formal care enters as need rises, but weakly and non-monotonically", fontsize=12)
+ax.set_title("Formal care enters as need rises, but weakly and non-monotonically", fontsize=12)
 style_axis(ax)
 caption(fig, "Mean informal care share by count of the six HRS activities of daily living (dressing, walking, bathing, eating, transferring, toileting). Cells with fewer than 30 respondents are suppressed.\n"
              f"The share falls from {grp['mean'].iloc[0]:.3f} at zero limitations to {grp['mean'].min():.3f} at four, then partially reverses: the most severely limited respondents are not the most likely to have formal help.")

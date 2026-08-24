@@ -189,7 +189,7 @@ handles = [plt.Line2D([], [], marker="o", ls="", color="black", label="Responden
            plt.Line2D([], [], marker="o", ls="", color=ORANGE, label="Formal helper")]
 fig.legend(handles=handles, loc="lower center", ncol=3, fontsize=9, frameon=False,
            bbox_to_anchor=(0.5, -0.04))
-suptitle(fig, "Figure 8. Four real care networks from HRS 2022")
+suptitle(fig, "Four real care networks from HRS 2022")
 caption(fig, "Each panel is one respondent's ego network, drawn from their Section G helper records. Edge thickness is monthly care hours. HHI is the Herfindahl concentration of those hours: 1.00 means a single\n"
              "person supplies every hour of care. These four are selected to span the structural range, not sampled at random. The scalar covariates used in scripts 02-04 cannot distinguish the first panel from\n"
              "the second, both are 100% informal, even though one rests on a single person and the other spreads across four.")
@@ -247,7 +247,7 @@ lo, hi = ax.get_xlim()
 ax.set_xlim(lo - 0.05, hi + 0.05)
 style_axis(ax, axis="x")
 
-suptitle(fig, "Figure 9. Network structure carries information the scalar covariates do not")
+suptitle(fig, "Network structure carries information the scalar covariates do not")
 caption(fig, f"HRS 2022, n = {int(merged['net_size'].notna().sum()):,} respondents with a reconstructable care network. Panel B suppresses network sizes with fewer than 25 respondents. Panel C shows simple Pearson correlations, "
              "not partial\neffects; they establish that the features move with the outcome, while script 07 tests whether they add anything once the existing covariates are already in the model.")
 savefig(fig, "f09_network_features.png")

@@ -82,7 +82,7 @@ def fit_interaction(frame, moderator, focal, controls):
             "ci_low": m.conf_int().loc[term, 0], "ci_high": m.conf_int().loc[term, 1],
             "n": int(m.nobs)}, m
 
-# Descriptive
+# Descriptive: the need gradient, split by living arrangement
 
 df["arrangement"] = np.select(
     [df["lives_alone"] == 1, df["lives_with_partner"] == 1, df["lives_with_relative"] == 1],
@@ -176,6 +176,9 @@ print(f"pairs involving lives_alone in the top 12: {len(alone_rank)}")
 
 # Figure 15: the need gradient conditional on living arrangement
 
+# Panels B and C carry long categorical labels on the y axis, so they get more
+# width than panel A and a wide gap between them. With equal widths the labels
+# run left out of their own panel and land on the neighbouring one.
 fig, axes = plt.subplots(1, 3, figsize=(16.4, 6.7),
                          gridspec_kw={"width_ratios": [1.05, 1.15, 1.0],
                                       "wspace": 0.62})
@@ -188,6 +191,9 @@ for a, sub in grad.groupby("arrangement"):
                 capsize=3, color=COLS[a], label=f"{a} (slope {slopes[a][0]:+.3f})", zorder=3)
 ax.set_xlabel("Number of ADL limitations")
 ax.set_ylabel("Mean informal care share")
+# Bottom left, which is the only empty corner: at "lower center" the legend sat
+# on the dip in the lives-alone series, which is the point of the panel. Below
+# the axes it collided with the caption instead.
 ax.legend(loc="lower left", fontsize=7.5, ncol=1, framealpha=0.9,
           facecolor="white", edgecolor="none")
 ax.set_ylim(0.58, 1.03)
@@ -197,6 +203,8 @@ style_axis(ax)
 
 ax = axes[1]
 top = inter.head(10).iloc[::-1]
+# Two short lines rather than one long one. On a single line these labels are
+# wide enough to reach into panel A.
 labels = [f"{r.focal}\n× {r.moderator}".replace("_", " ") for r in top.itertuples()]
 ax.errorbar(top["interaction_beta"], range(len(top)),
             xerr=[top["interaction_beta"] - top["ci_low"],
@@ -226,13 +234,13 @@ ax.set_title("Interactions the tree actually used")
 panel_label(ax, "C")
 style_axis(ax, axis="x")
 
-suptitle(fig, "Figure 15. Testing Litwak's prediction that need and household structure interact")
+suptitle(fig, "Testing Litwak's prediction that need and household structure interact")
 caption(fig, f"HRS 2022, n = {len(df):,}. Panel A: cells with fewer than 25 respondents are suppressed; error bars are standard errors of the mean; the slope in each legend entry is from a within-group regression of the informal\n"
              "share on ADL count. Panel B: coefficients on the product of a standardized focal variable and a standardized living-arrangement indicator, with standard errors clustered on household; orange marks p < 0.05.\n"
              "Panel C: mean absolute SHAP interaction values from the tuned booster, computed on a random 600-respondent subsample; these find interactions the model used rather than only those specified in advance.")
 savefig(fig, "f15_interaction_grid.png")
 
-# Figure 16: the strongest interaction
+# Figure 16: the single strongest interaction, shown directly
 
 best = inter.iloc[0]
 f_, m_ = best["focal"], best["moderator"]
@@ -270,7 +278,7 @@ ax.set_title("Model's view of the same interaction")
 panel_label(ax, "B")
 style_axis(ax)
 
-suptitle(fig, f"Figure 16. Strongest interaction: {f_.replace('_',' ')} × {m_.replace('_',' ')} "
+suptitle(fig, f"Strongest interaction: {f_.replace('_',' ')} × {m_.replace('_',' ')} "
              f"(β = {best['interaction_beta']:+.3f}, p = {best['p_value']:.3f})")
 caption(fig, f"HRS 2022, n = {len(df):,}. Panel A splits the sample by {m_.replace('_',' ')} and plots the mean informal share across quartiles of {f_.replace('_',' ')}; non-parallel lines are the interaction. Error bars are standard errors;\n"
              "quartile cells with fewer than 20 respondents are suppressed. Panel B shows the SHAP interaction values for the same pair from the tuned booster, doubled because SHAP splits each pairwise interaction\n"

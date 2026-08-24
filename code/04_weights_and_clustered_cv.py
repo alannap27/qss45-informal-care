@@ -200,7 +200,7 @@ ax.set_ylabel("Cross-validated $R^2$")
 ax.set_title(f"C. The two CV designs are indistinguishable\ndifference {naive_m - grouped_m:+.4f}, fold sd ~{np.mean([naive_s, grouped_s]):.3f}", fontsize=12)
 style_axis(ax)
 
-suptitle(fig, "Figure 7. Survey weights change the estimand; household clustering turns out not to matter here")
+suptitle(fig, "Survey weights change the estimand; household clustering turns out not to matter here")
 caption(fig, f"HRS 2022, n = {len(df):,}. Panel A compares the sample mean with the population-weighted mean using the HRS respondent weight SWGTR (available for {df['weight'].notna().mean():.0%} of the sample; Kish design "
              f"effect {1 + (df['weight'].std()/df['weight'].mean())**2:.2f}).\nPanel B plots each standardized coefficient unweighted against weighted; points off the diagonal are estimates that depend on which population is being described. Panel C compares two 5-fold designs on "
              f"the identical model:\nrandom splitting of individuals versus splitting whole households. Only {(hh >= 2).mean():.0%} of households contribute more than one respondent, so there is little to leak; the difference is smaller than the\n"
