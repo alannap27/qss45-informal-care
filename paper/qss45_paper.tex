@@ -494,7 +494,9 @@ respondents have zero distinct kin types and their mean informal share is
 exactly 0.000. That second tier still yields $R^2 = 0.553$, and is invisible to
 a correlation scan because each feature looks unremarkable in isolation. With
 both tiers removed, the genuinely exogenous network features move $R^2$ from
-0.0874 to 0.0864---that is, not at all.
+0.0874 to 0.0864---that is, not at all. Figure~\ref{fig:b-leakage} shows both
+tiers: the ladder of $R^2$ across the three feature sets, and the mechanism that
+makes the first tier a re-encoding of the outcome rather than a predictor of it.
 
 The general point is that the outcome is \emph{constructed from} the helper
 roster, so every roster-derived feature is downstream of it. The operative test
@@ -509,7 +511,8 @@ the English Longitudinal Study of Ageing calls the dressing item
 \texttt{headldr} where HRS calls it \texttt{SG014}. Embedding the variable
 \emph{descriptions} and matching on cosine similarity reconstructs the crosswalk
 at 71.4\% top-1 and 78.6\% top-5 accuracy against all 403 ELSA derived
-variables, where random selection would score 0.2\%.
+variables, where random selection would score 0.2\%
+(Fig.~\ref{fig:b-matching}).
 
 The failure pattern is the useful part. On ten ADL and IADL items the matcher
 gets nine right. On four items where the two studies measure the same construct
@@ -729,6 +732,21 @@ not.}
 
 \begin{figure}[H]
 \centering
+\includegraphics[width=0.76\linewidth]{figures/f11_leakage.png}
+\caption{The two-tier leakage failure of the previous section, in the order it
+was found. Panel A is the ablation ladder read from the contaminated end
+downward: adding the tier-1 features lifts household-clustered $R^2$ to 0.644 and
+the tier-2 kin-composition features still hold it at 0.553, while the genuinely
+exogenous tier-3 shape features leave the base covariates where they were. An
+improvement of that size on an outcome this degenerate is a symptom rather than a
+result. Panel B is the mechanism for tier 1: the informal share drops below one
+exactly when a formal helper is present, so \texttt{net\_any\_formal} and the
+outcome are two encodings of one fact. Points are jittered horizontally.}
+\label{fig:b-leakage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
 \includegraphics[width=0.76\linewidth]{figures/f12_ablation_and_shap.png}
 \caption{Feature-block ablation with the final model's SHAP summary. Blocks are
 added cumulatively under identical folds; the shaded band is one standard
@@ -752,6 +770,23 @@ they match. t-SNE distances are not metric, so read adjacency, not scale.}
 
 \begin{figure}[H]
 \centering
+\includegraphics[width=0.76\linewidth]{figures/f14_matching_accuracy.png}
+\caption{How well that search does. Panel A scores each matcher against the
+hand-coded key at top-1, top-3 and top-5, where top-3 means the true counterpart
+appeared among the three highest-scoring candidates out of 403. Panel B is the
+per-item similarity margin, the gap between the best and second-best candidate,
+sorted low to high with incorrect matches in orange; every error falls in the
+bottom four, which is what makes the margin usable as a triage rule rather than a
+diagnostic after the fact. Panel C separates the similarity scores of true pairs
+from all non-matching pairs. Fourteen items is a small answer key, so this
+establishes that the approach is viable, not that it is validated at scale.}
+\label{fig:b-matching}
+\end{figure}
+
+\subsection*{A.5 Interaction structure}
+
+\begin{figure}[H]
+\centering
 \includegraphics[width=0.76\linewidth]{figures/f16_shap_interactions.png}
 \caption{The strongest interaction decomposed directly. Panel A splits the
 sample by living arrangement and plots the mean informal share across quartiles
@@ -760,9 +795,9 @@ SHAP interaction values for the same pair from the tuned booster.}
 \label{fig:b-shapinter}
 \end{figure}
 
-\subsection*{A.5 Omitted tables}
+\subsection*{A.6 Omitted tables}
 
-Seventeen tables are the numeric backing for results stated in prose and are not
+Sixteen tables are the numeric backing for results stated in prose and are not
 reproduced here, running from the sample-construction audit and descriptives
 through the coefficient and cross-validation comparisons to the ablation ladder,
 the crosswalk with its per-item similarities, and the SHAP interaction pairs.
