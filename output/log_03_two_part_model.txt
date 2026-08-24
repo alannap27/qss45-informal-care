@@ -1,0 +1,32 @@
+train 1,606 / test 536
+  part 1 fitted on 1,606 rows; part 2 on 256 (15.9% of the sample use some formal care)
+
+OLS                test R2 +0.0110   MAE 0.1643   predictions outside [0,1]: 58
+Fractional logit   test R2 +0.0322   MAE 0.1541   predictions outside [0,1]: 0
+Two-part           test R2 +0.0353   MAE 0.1537   predictions outside [0,1]: 0
+part 1 (any formal care) test AUC: 0.7096
+part 1 Brier score: 0.1103
+part 2 (conditional share) test R2: +0.1815 on 72 test rows
+                          part1_any_formal  part2_conditional_share  sign_flip
+nursing_home                        -0.520                   -0.854      False
+lives_with_partner                  -0.481                    0.745       True
+age                                  0.421                    0.320      False
+rate_memory_missing                  0.333                    0.078      False
+lives_with_relative                 -0.326                    0.369       True
+total_care_hours                     0.308                    0.522      False
+adl_count                            0.299                   -0.126       True
+rate_memory                         -0.259                    0.007       True
+race_black                           0.249                    0.021      False
+word_recall_missing                 -0.238                   -0.441      False
+kids_within_10mi_missing             0.212                   -0.171       True
+kids_within_10mi                    -0.188                    0.023       True
+
+features whose sign flips between the two parts: 14 of 33
+  wrote output/tables/t03_two_part_coefficients.csv
+  wrote output/figures/f06_two_part.png
+                     specification  test_r2  test_mae  predictions_outside_unit_interval
+                    Intercept only  -0.0066       NaN                                  0
+                               OLS   0.0110    0.1643                                 58
+   Fractional logit (GLM binomial)   0.0322    0.1541                                  0
+Two-part (logit + conditional GLM)   0.0353    0.1537                                  0
+  wrote output/tables/t03_two_part.csv

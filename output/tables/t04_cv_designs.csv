@@ -1,0 +1,3 @@
+cv_design,mean_r2,sd_across_folds,note
+Naive 5-fold KFold (splits individuals),0.0703,0.039,leaks 10% of rows across the split
+Household GroupKFold (splits households),0.0874,0.0425,adopted as default; difference from naive is within fold noise

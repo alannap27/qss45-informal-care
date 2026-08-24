@@ -1,0 +1,49 @@
+analysis sample: 2,142 respondents
+share receiving 100% informal care: 84.7%
+share receiving 0% informal care: 5.9%
+share strictly between 0 and 1: 9.4%
+median monthly care hours 52
+mean helpers per respondent: 1.70
+  wrote output/figures/f01_outcome_and_intensity.png
+  wrote output/figures/f02_helper_composition.png
+  wrote output/figures/f03_need_gradient.png
+            mean  size
+adl_count             
+0.0        0.928   453
+1.0        0.922   457
+2.0        0.883   361
+3.0        0.888   257
+4.0        0.837   204
+5.0        0.853   181
+6.0        0.878   176
+
+informal share by neurological diagnosis (stroke, dementia or Alzheimer's):
+           mean  size
+neuro_dx             
+0.0       0.900  1404
+1.0       0.888   738
+                   count     mean      std   min   25%   50%     75%    max  missing_%
+informal_share    2142.0    0.896    0.282   0.0   1.0   1.0    1.00    1.0        0.0
+total_care_hours  2142.0  125.925  182.615   1.0  14.0  52.0  150.00  744.0        0.0
+n_helpers         2142.0    1.697    1.016   1.0   1.0   1.0    2.00    8.0        0.0
+adl_count         2089.0    2.263    1.913   0.0   1.0   2.0    4.00    6.0        2.5
+iadl_count        2142.0    1.739    1.428   0.0   1.0   1.0    2.00    5.0        0.0
+age               2142.0   72.372   12.332  50.0  62.0  72.0   82.75  101.0        0.0
+years_school      2129.0   11.921    3.542   0.0  11.0  12.0   14.00   17.0        0.6
+word_recall       1697.0    7.933    3.473   0.0   5.0   8.0   10.00   20.0       20.8
+rate_memory       1808.0    3.470    0.988   1.0   3.0   4.0    4.00    5.0       15.6
+n_children        2142.0    3.828    2.766   0.0   2.0   3.0    5.00   22.0        0.0
+  wrote output/tables/t01_descriptives.csv
+
+           variable  share_1  n_nonmissing
+             female    0.676          2142
+        lives_alone    0.280          2133
+ lives_with_partner    0.459          2133
+lives_with_relative    0.234          2133
+       nursing_home    0.034          2142
+              proxy    0.154          2142
+             stroke    0.215          2139
+           dementia    0.129          1986
+         alzheimers    0.073          2138
+           neuro_dx    0.345          2142
+  wrote output/tables/t01_binary_shares.csv

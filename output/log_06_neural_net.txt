@@ -1,0 +1,45 @@
+n = 2,142, features = 33, households = 2,033
+  MLP (8,)                               R2 = -0.1703  (sd 0.0296)  [1.9s]
+  MLP (32,)                              R2 = -0.2123  (sd 0.0568)  [0.4s]
+  MLP (64,)                              R2 = -0.3288  (sd 0.0581)  [0.3s]
+  MLP (32, 16)                           R2 = -0.2656  (sd 0.0589)  [0.5s]
+  MLP (64, 32)                           R2 = -0.2066  (sd 0.0360)  [0.5s]
+  MLP (128, 64)                          R2 = -0.2227  (sd 0.0300)  [0.6s]
+  MLP (64, 32, 16)                       R2 = -0.1963  (sd 0.0438)  [0.6s]
+
+architecture  n_hidden_layers  total_units   cv_r2     sd
+        (8,)                1            8 -0.1703 0.0296
+(64, 32, 16)                3          112 -0.1963 0.0438
+    (64, 32)                2           96 -0.2066 0.0360
+       (32,)                1           32 -0.2123 0.0568
+   (128, 64)                2          192 -0.2227 0.0300
+    (32, 16)                2           48 -0.2656 0.0589
+       (64,)                1           64 -0.3288 0.0581
+  wrote output/tables/t06_architecture_search.csv
+
+best architecture: (8,)
+  MLP (8,) alpha=0.0001                  R2 = -0.1678  (sd 0.0302)  [0.8s]
+  MLP (8,) alpha=0.001                   R2 = -0.1703  (sd 0.0296)  [0.7s]
+  MLP (8,) alpha=0.01                    R2 = -0.1665  (sd 0.0377)  [0.8s]
+  MLP (8,) alpha=0.1                     R2 = -0.1433  (sd 0.0347)  [0.8s]
+  MLP (8,) alpha=1                       R2 = -0.0014  (sd 0.0275)  [0.7s]
+
+ alpha   cv_r2     sd
+0.0001 -0.1678 0.0302
+0.0010 -0.1703 0.0296
+0.0100 -0.1665 0.0377
+0.1000 -0.1433 0.0347
+1.0000 -0.0014 0.0275
+best alpha: 1
+household-clustered 5-fold CV:
+  Ridge (linear)                         R2 = +0.0614  (sd 0.0160)  [0.0s]
+  MLP (8,), alpha=1                      R2 = -0.0014  (sd 0.0275)  [0.7s]
+  XGBoost (tuned in script 02)           R2 = +0.0874  (sd 0.0425)  [0.1s]
+
+                model_family   cv_r2  sd_across_folds
+XGBoost (tuned in script 02)  0.0874           0.0425
+              Ridge (linear)  0.0614           0.0160
+              Intercept only -0.0003           0.0004
+           MLP (8,), alpha=1 -0.0014           0.0275
+  wrote output/tables/t06_model_family_comparison.csv
+  wrote output/figures/f10_neural_net.png

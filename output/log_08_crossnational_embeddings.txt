@@ -1,0 +1,83 @@
+ELSA derived variables: 403
+category
+economics                    151
+IND demographics             102
+health                        39
+HH demographics               35
+BU demographics               28
+interview characteristics     20
+cognitive function            13
+identifiers                   12
+pychosocial                    2
+
+search space (all categories): 403 candidate variables
+hrs_variable                          hrs_label true_elsa difficulty
+       SG014               DIFFICULTY- DRESSING   headldr       easy
+       SG016                 DIFFICULTY WALKING   headlwa       easy
+       SG021                 DIFFICULTY BATHING   headlba       easy
+       SG023                  DIFFICULTY EATING   headlea       easy
+       SG025          DIFFICULTY GET IN/OUT BED   headlbe       easy
+       SG030            DIFFICULTY USING TOILET   headlwc       easy
+       SG041   IADL MEAL PREPARATION DIFFICULTY   headlpr       easy
+       SG044          IADL GROC SHOP DIFFICULTY   headlsh       easy
+       SG047 IADL MAKING PHONE CALLS DIFFICULTY   headlph       easy
+       SG050 IADL TAKING MEDICATIONS DIFFICULTY   headlme       easy
+        SAGE                           2022 AGE       age       easy
+       SD174             NUMBER GOOD: IMMEDIATE    memtot       hard
+     SCHLYRS          NUMBER OF YEARS IN SCHOOL     edend       hard
+     SLIVARR     2022 LIVING ARRANGEMENT STATUS   npeople       hard
+
+ground-truth targets absent from the ELSA dictionary: none
+scoring on 14 pairs against 403 candidates (random-guess top-1 accuracy would be 0.2%)
+                  matcher  accuracy@1  accuracy@3  accuracy@5
+Lexical overlap (Jaccard)       0.643       0.714       0.714
+  LSA embeddings (cosine)       0.643       0.714       0.786
+    Hybrid (equal weight)       0.714       0.714       0.786
+  wrote output/tables/t08_matching_scores.csv
+best matcher on top-1: Hybrid (equal weight)
+
+hrs_variable                          hrs_label elsa_match true_elsa  correct difficulty  similarity
+       SG014               DIFFICULTY- DRESSING    headldr   headldr     True       easy    0.586914
+       SG016                 DIFFICULTY WALKING    headlwa   headlwa     True       easy    0.748314
+       SG021                 DIFFICULTY BATHING    headlba   headlba     True       easy    0.812454
+       SG023                  DIFFICULTY EATING    headlea   headlea     True       easy    0.596759
+       SG025          DIFFICULTY GET IN/OUT BED    headlbe   headlbe     True       easy    0.899122
+       SG030            DIFFICULTY USING TOILET    headlwc   headlwc     True       easy    0.702118
+       SG041   IADL MEAL PREPARATION DIFFICULTY    headlpr   headlpr     True       easy    0.550164
+       SG044          IADL GROC SHOP DIFFICULTY    headlme   headlsh    False       easy    0.446444
+       SG047 IADL MAKING PHONE CALLS DIFFICULTY    headlph   headlph     True       easy    0.825883
+       SG050 IADL TAKING MEDICATIONS DIFFICULTY    headlme   headlme     True       easy    1.000000
+        SAGE                           2022 AGE        age       age     True       easy    0.708393
+       SD174             NUMBER GOOD: IMMEDIATE      perid    memtot    False       hard    0.578540
+     SCHLYRS          NUMBER OF YEARS IN SCHOOL    numbuad     edend    False       hard    0.819410
+     SLIVARR     2022 LIVING ARRANGEMENT STATUS smokerstat   npeople    False       hard    0.452786
+
+            mean  size
+difficulty            
+easy        0.91    11
+hard        0.00     3
+  wrote output/tables/t08_crosswalk.csv
+
+top-1 accuracy: 71%  (10/14)
+  wrote output/figures/f13_embedding_space.png
+  wrote output/figures/f14_matching_accuracy.png
+items ranked by similarity margin, lowest confidence first:
+   1. SG044     margin 0.013   WRONG
+   2. SLIVARR   margin 0.034   WRONG
+   3. SD174     margin 0.061   WRONG
+   4. SCHLYRS   margin 0.076   WRONG
+   5. SG016     margin 0.093   ok   
+   6. SG041     margin 0.121   ok   
+   7. SG023     margin 0.188   ok   
+   8. SG014     margin 0.212   ok   
+   9. SG030     margin 0.233   ok   
+  10. SAGE      margin 0.328   ok   
+  11. SG025     margin 0.359   ok   
+  12. SG047     margin 0.389   ok   
+  13. SG021     margin 0.511   ok   
+  14. SG050     margin 0.587   ok   
+
+all 4 incorrect matches fall in the bottom 4 by margin: True
+
+So a rule of the form 'accept the top-k margins, send the rest to a human'
+would have caught every error here while auto-accepting 71% of the crosswalk.

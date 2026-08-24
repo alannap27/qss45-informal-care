@@ -1,0 +1,5 @@
+model_family,cv_r2,sd_across_folds
+XGBoost (tuned in script 02),0.0874,0.0425
+Ridge (linear),0.0614,0.016
+Intercept only,-0.0003,0.0004
+"MLP (8,), alpha=1",-0.0014,0.0275

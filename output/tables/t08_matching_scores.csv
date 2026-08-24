@@ -1,0 +1,4 @@
+matcher,accuracy@1,accuracy@3,accuracy@5
+Lexical overlap (Jaccard),0.643,0.714,0.714
+LSA embeddings (cosine),0.643,0.714,0.786
+Hybrid (equal weight),0.714,0.714,0.786

@@ -1,0 +1,57 @@
+analysis sample: 2,142
+distinct households: 2,033
+households with 2+ rows: 107  (5.3%)
+respondents in such households: 216 (10.1% of the sample)
+
+weight available for: 80.3% of respondents
+weight range: 509 to 55,007
+design effect (Kish): 1.83
+          variable  unweighted  weighted  difference  pct_change
+    informal_share      0.8914    0.8962      0.0049      0.5459
+         adl_count      2.1777    2.1030     -0.0747     -3.4317
+        iadl_count      1.7233    1.7142     -0.0090     -0.5246
+               age     74.1081   73.3618     -0.7464     -1.0071
+       lives_alone      0.2624    0.2232     -0.0391    -14.9179
+lives_with_partner      0.4694    0.5353      0.0660     14.0526
+      nursing_home      0.0000    0.0000      0.0000         NaN
+            stroke      0.2119    0.2046     -0.0073     -3.4512
+          dementia      0.1311    0.1320      0.0009      0.6494
+        n_children      3.9756    3.7566     -0.2190     -5.5076
+  wrote output/tables/t04_weighted_descriptives.csv
+
+headline: informal share is 0.8914 unweighted and 0.8962 weighted, a shift of +0.0049
+                     unweighted_beta  weighted_beta  unweighted_p  weighted_p  abs_change  significance_flips
+alzheimers                   -0.0093         0.0071        0.8559      0.7966      0.0164               False
+widowed                       0.0010        -0.0129        0.9442      0.3444      0.0139               False
+n_children                   -0.0014         0.0093        0.8530      0.2203      0.0107               False
+lives_with_relative           0.0259         0.0366        0.1416      0.0468      0.0107                True
+hispanic                     -0.0148        -0.0251        0.0785      0.0037      0.0103                True
+dementia_missing              0.0178         0.0080        0.7278      0.7761      0.0098               False
+sep_divorced                 -0.0012        -0.0108        0.9166      0.3335      0.0096               False
+rate_memory                   0.0256         0.0168        0.0004      0.0154      0.0088               False
+age                          -0.0136        -0.0053        0.1306      0.5393      0.0083               False
+lives_alone                  -0.0234        -0.0155        0.1969      0.4125      0.0079               False
+
+coefficients whose 5% significance verdict flips when weighted: 5 of 33
+  wrote output/tables/t04_weighted_coefficients.csv
+naive 5-fold KFold: R2 = +0.0703  (sd across folds 0.0390)
+household GroupKFold: R2 = +0.0874  (sd across folds 0.0425)
+difference: -0.0171
+pooled fold-level sd: 0.0407
+
+The difference is smaller than the fold-to-fold standard deviation, so it
+cannot be distinguished from noise. Note also that the grouped estimate came
+out higher, which is the opposite of what leakage would produce.
+nursing-home residents in the sample: 73
+of whom have a survey weight: 0
+their mean informal share: 0.9863
+everyone else's mean informal share: 0.8925
+
+respondents dropped by any weighted analysis: 422 (19.7% of the sample)
+  wrote output/figures/f07_weights_and_clustering.png
+                               cv_design  mean_r2  sd_across_folds                                                           note
+ Naive 5-fold KFold (splits individuals)   0.0703           0.0390                             leaks 10% of rows across the split
+Household GroupKFold (splits households)   0.0874           0.0425 adopted as default; difference from naive is within fold noise
+  wrote output/tables/t04_cv_designs.csv
+
+From here on, GroupKFold on HHID is the default design (scripts 05-08).

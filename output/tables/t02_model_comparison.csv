@@ -1,0 +1,7 @@
+model,task,metric,value
+Intercept only,regression on informal share,test R2,-0.0066
+OLS,regression on informal share,test R2,0.011
+XGBoost (untuned defaults),regression on informal share,test R2,-0.0532
+XGBoost (5-fold CV tuned),regression on informal share,test R2,0.0393
+Logistic regression,any formal care,test AUC,0.7096
+XGBoost classifier,any formal care,test AUC,0.7284

@@ -1,0 +1,5 @@
+specification,test_r2,test_mae,predictions_outside_unit_interval
+Intercept only,-0.0066,,0
+OLS,0.011,0.1643,58
+Fractional logit (GLM binomial),0.0322,0.1541,0
+Two-part (logit + conditional GLM),0.0353,0.1537,0

@@ -1,0 +1,8 @@
+feature_block,n_features,cv_r2,sd
+Demographics only,6,-0.0042,0.0109
++ household structure,15,0.0454,0.0251
++ clinical need,27,0.0593,0.0369
++ care intensity (full base set),33,0.0874,0.0425
+"+ network shape, tier 3 (FINAL)",36,0.0864,0.0376
++ tier 2 endogenous (excluded),40,0.5529,0.0199
++ tier 1 leakage (excluded),35,0.6439,0.0234

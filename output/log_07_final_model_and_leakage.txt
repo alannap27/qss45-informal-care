@@ -1,0 +1,53 @@
+n = 2,142
+tier 1, leakage: ['net_any_formal', 'net_n_informal']
+tier 2, endogenous: ['net_has_spouse', 'net_n_children', 'net_n_kin_types', 'net_generation_span']
+tier 3, usable: ['net_size', 'net_hhi_hours', 'net_top_helper_share']
+net_any_formal  correlation with outcome: -0.749
+net_n_informal  correlation with outcome: +0.213
+
+  base covariates only                         R2 = +0.0874  (sd 0.0425)
+  base + LEAKY network features                R2 = +0.6439  (sd 0.0234)
+
+apparent gain from leakage: +0.5565
+A jump of this size on a near-degenerate outcome is not a discovery.
+It is the model reading the answer off the feature.
+net_has_spouse = 0 for 1302 respondents; their mean informal share is 0.839 vs 0.983 otherwise
+net_n_children = 0 for 1043 respondents; their mean informal share is 0.862 vs 0.928 otherwise
+net_n_kin_types = 0 for   94 respondents; their mean informal share is 0.000 vs 0.937 otherwise
+net_generation_span = 0 for 1726 respondents; their mean informal share is 0.881 vs 0.955 otherwise
+  base + tier 3 + tier 2 (endogenous)          R2 = +0.5529  (sd 0.0199)
+  base + tier 3 network shape (FINAL)          R2 = +0.0864  (sd 0.0376)
+  Demographics only                            R2 = -0.0042  (sd 0.0109)
+  + household structure                        R2 = +0.0454  (sd 0.0251)
+  + clinical need                              R2 = +0.0593  (sd 0.0369)
+
+                   feature_block  n_features   cv_r2     sd
+               Demographics only           6 -0.0042 0.0109
+           + household structure          15  0.0454 0.0251
+                 + clinical need          27  0.0593 0.0369
++ care intensity (full base set)          33  0.0874 0.0425
+ + network shape, tier 3 (FINAL)          36  0.0864 0.0376
+  + tier 2 endogenous (excluded)          40  0.5529 0.0199
+     + tier 1 leakage (excluded)          35  0.6439 0.0234
+  wrote output/tables/t07_ablation.csv
+  wrote output/figures/f11_leakage.png
+top 15 features by mean |SHAP| in the final model:
+lives_alone             0.0298
+total_care_hours        0.0261
+lives_with_partner      0.0260
+rate_memory             0.0129
+adl_count               0.0112
+age                     0.0089
+net_top_helper_share    0.0067
+word_recall             0.0058
+n_children              0.0054
+lives_with_relative     0.0045
+heart                   0.0043
+years_school            0.0042
+widowed                 0.0031
+net_hhi_hours           0.0030
+psych                   0.0030
+  wrote output/tables/t07_final_shap.csv
+
+share of total attribution going to network-structure features: 5.6%
+  wrote output/figures/f12_ablation_and_shap.png

@@ -1,0 +1,11 @@
+variable,unweighted,weighted,difference,pct_change
+informal_share,0.8914,0.8962,0.0049,0.5459
+adl_count,2.1777,2.103,-0.0747,-3.4317
+iadl_count,1.7233,1.7142,-0.009,-0.5246
+age,74.1081,73.3618,-0.7464,-1.0071
+lives_alone,0.2624,0.2232,-0.0391,-14.9179
+lives_with_partner,0.4694,0.5353,0.066,14.0526
+nursing_home,0.0,0.0,0.0,
+stroke,0.2119,0.2046,-0.0073,-3.4512
+dementia,0.1311,0.132,0.0009,0.6494
+n_children,3.9756,3.7566,-0.219,-5.5076

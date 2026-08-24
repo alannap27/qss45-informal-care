@@ -1,0 +1,13 @@
+feature_a,feature_b,mean_abs_interaction
+lives_alone,total_care_hours,0.0064625572
+lives_with_partner,total_care_hours,0.006123477
+lives_alone,rate_memory,0.005401564
+age,lives_alone,0.0032367595
+lives_with_partner,net_top_helper_share,0.0027212345
+lives_with_partner,lives_with_relative,0.0023563334
+age,lives_with_partner,0.0021623734
+lives_with_partner,heart,0.0020520894
+years_school,lives_with_partner,0.0020514003
+lives_with_relative,total_care_hours,0.0020454188
+rate_memory,total_care_hours,0.0020244871
+n_children,total_care_hours,0.0019514147

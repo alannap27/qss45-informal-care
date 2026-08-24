@@ -1,0 +1,11 @@
+variable,share_1,n_nonmissing
+female,0.676,2142
+lives_alone,0.28,2133
+lives_with_partner,0.459,2133
+lives_with_relative,0.234,2133
+nursing_home,0.034,2142
+proxy,0.154,2142
+stroke,0.215,2139
+dementia,0.129,1986
+alzheimers,0.073,2138
+neuro_dx,0.345,2142

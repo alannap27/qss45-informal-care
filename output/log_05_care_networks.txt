@@ -1,0 +1,46 @@
+/sessions/dreamy-laughing-thompson/mnt/outputs/qss45repo/code/05_care_networks.py:244: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+  ax.set_yticklabels([t.get_text().replace("net_", "").replace("_", " ")
+helper records: 4,481
+helper records with usable hours: 3,666
+ego networks built: 2,169
+
+       net_size  net_hhi_hours  net_top_helper_share  net_n_kin_types  net_generation_span
+count  2169.000       2161.000              2161.000         2169.000             2169.000
+mean      1.690          0.836                 0.873            1.260                0.217
+std       1.012          0.226                 0.189            0.606                0.469
+min       1.000          0.230                 0.250            0.000                0.000
+25%       1.000          0.625                 0.760            1.000                0.000
+50%       1.000          1.000                 1.000            1.000                0.000
+75%       2.000          1.000                 1.000            2.000                0.000
+max       8.000          1.000                 1.000            5.000                3.000
+
+  merge [network features -> analysis file]: 2142 rows in -> 2142 rows out, 2142 matched (left join)
+concentration of care hours:
+ networks where one helper supplies all hours: 57.1%
+ median top-helper share of hours: 1.000
+ median network size: 1
+
+informal share by concentration:
+                   mean  size
+net_hhi_hours                
+<0.4 (spread)     0.872   111
+0.4-0.6           0.860   372
+0.6-0.8           0.888   246
+0.8-1.0           0.854   189
+1.0 (sole carer)  0.917  1224
+  wrote output/figures/f08_care_networks.png
+  wrote output/figures/f09_network_features.png
+network features created: ['net_size', 'net_n_informal', 'net_hhi_hours', 'net_top_helper_share', 'net_has_spouse', 'net_n_children', 'net_n_kin_types', 'net_generation_span', 'net_any_formal']
+wrote data/processed/hrs2022_caregiving_networks.csv  (2,142 rows)
+
+                       count   mean    std   min    25%  50%  75%  max  corr_with_outcome
+net_size              2142.0  1.697  1.016  1.00  1.000  1.0  2.0  8.0             -0.071
+net_n_informal        2142.0  1.566  1.007  0.00  1.000  1.0  2.0  7.0              0.213
+net_hhi_hours         2142.0  0.835  0.226  0.23  0.625  1.0  1.0  1.0              0.071
+net_top_helper_share  2142.0  0.873  0.189  0.25  0.756  1.0  1.0  1.0              0.066
+net_has_spouse        2142.0  0.392  0.488  0.00  0.000  0.0  1.0  1.0              0.249
+net_n_children        2142.0  0.695  0.825  0.00  0.000  1.0  1.0  6.0              0.097
+net_n_kin_types       2142.0  1.261  0.608  0.00  1.000  1.0  2.0  5.0              0.309
+net_generation_span   2142.0  0.218  0.470  0.00  0.000  0.0  0.0  3.0              0.096
+net_any_formal        2142.0  0.111  0.314  0.00  0.000  0.0  0.0  1.0             -0.749
+  wrote output/tables/t05_network_features.csv

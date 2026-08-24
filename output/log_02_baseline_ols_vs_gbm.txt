@@ -1,0 +1,36 @@
+feature matrix: 2,142 rows x 33 columns
+train 1,606 / test 536
+intercept-only baseline test R2 : -0.0066  (predicts 0.890 for everyone)
+OLS                  test R2 : 0.0110   (in-sample 0.1043)
+XGBoost, untuned     test R2 : -0.0532
+XGBoost, 5-fold CV   test R2 : 0.0393
+  best params: {'learning_rate': 0.02, 'max_depth': 4, 'min_child_weight': 10, 'n_estimators': 150}  (CV R2 0.0956)
+base rate of any formal care : 0.153
+logistic regression test AUC: 0.7096
+XGBoost classifier test AUC: 0.7284
+Spearman correlation of the two importance rankings: 0.369
+
+                          ols_abs_coef  shap_mean_abs  ols_rank  shap_rank  rank_gap
+lives_alone                      0.013          0.035      14.0        1.0      13.0
+total_care_hours                 0.007          0.030      20.0        2.0      18.0
+lives_with_partner               0.060          0.024       1.0        3.0      -2.0
+age                              0.025          0.013       7.0        4.0       3.0
+adl_count                        0.027          0.012       6.0        5.0       1.0
+rate_memory                      0.023          0.012       9.0        6.0       3.0
+race_black                       0.017          0.008      11.0        7.0       4.0
+lives_with_relative              0.043          0.007       2.0        8.0      -6.0
+n_children                       0.006          0.005      24.0        9.0      15.0
+word_recall                      0.010          0.005      17.0       10.0       7.0
+kids_within_10mi_missing         0.023          0.005       8.0       11.0      -3.0
+years_school                     0.004          0.004      28.0       12.0      16.0
+  wrote output/tables/t02_importance_ranks.csv
+  wrote output/figures/f04_forest_vs_shap.png
+  wrote output/figures/f05_importance_ranks.png
+                     model                         task   metric   value
+            Intercept only regression on informal share  test R2 -0.0066
+                       OLS regression on informal share  test R2  0.0110
+XGBoost (untuned defaults) regression on informal share  test R2 -0.0532
+ XGBoost (5-fold CV tuned) regression on informal share  test R2  0.0393
+       Logistic regression              any formal care test AUC  0.7096
+        XGBoost classifier              any formal care test AUC  0.7284
+  wrote output/tables/t02_model_comparison.csv

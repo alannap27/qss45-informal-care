@@ -1,0 +1,15 @@
+hrs_variable,elsa_match,similarity,hrs_label,true_elsa,elsa_description,correct,difficulty
+SG014,headldr,0.5869136243170189,DIFFICULTY- DRESSING,headldr,"adl: difficulty dressing, including putting on shoes and socks",True,easy
+SG016,headlwa,0.7483138721461451,DIFFICULTY WALKING,headlwa,adl: difficulty walking across a room,True,easy
+SG021,headlba,0.8124537956083431,DIFFICULTY BATHING,headlba,adl: difficulty bathing or showering,True,easy
+SG023,headlea,0.5967587980289637,DIFFICULTY EATING,headlea,"adl: difficulty eating, such as cutting up food",True,easy
+SG025,headlbe,0.8991217986473735,DIFFICULTY GET IN/OUT BED,headlbe,adl: difficulty getting in and out of bed,True,easy
+SG030,headlwc,0.7021182865928006,DIFFICULTY USING TOILET,headlwc,"adl: difficulty using the toilet, including getting up or down",True,easy
+SG041,headlpr,0.5501642744830928,IADL MEAL PREPARATION DIFFICULTY,headlpr,iadl: difficulty preparing a hot meal,True,easy
+SG044,headlme,0.44644392179296105,IADL GROC SHOP DIFFICULTY,headlsh,iadl: difficulty taking medications,False,easy
+SG047,headlph,0.8258826899946956,IADL MAKING PHONE CALLS DIFFICULTY,headlph,iadl: difficulty making telephone calls,True,easy
+SG050,headlme,0.9999999999984983,IADL TAKING MEDICATIONS DIFFICULTY,headlme,iadl: difficulty taking medications,True,easy
+SAGE,age,0.7083929638620348,2022 AGE,age,age: copy of indage/dhager,True,easy
+SD174,perid,0.5785395325887784,NUMBER GOOD: IMMEDIATE,memtot,person number,False,hard
+SCHLYRS,numbuad,0.8194098109126235,NUMBER OF YEARS IN SCHOOL,edend,number of adult in BU,False,hard
+SLIVARR,smokerstat,0.4527859859344744,2022 LIVING ARRANGEMENT STATUS,npeople,smoker status (past or present),False,hard
