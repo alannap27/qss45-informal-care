@@ -10,7 +10,24 @@
 %\onecolumn
 
 \usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
 \usepackage{float}
+\usepackage{placeins}
+\usepackage{needspace}
+
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.80}
+
+\setlength{\floatsep}{7pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{9pt plus 2pt minus 3pt}
+\setlength{\intextsep}{7pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
 
 \begin{document}
 
@@ -25,7 +42,7 @@
 \leadauthor{Polyak}
 
 % Please add a significance statement to explain the relevance of your work
-\significancestatement{Most long-term care in the United States is unpaid work done by family members, and it appears in no measure of health spending. Using a nationally representative survey of 2,142 older adults who need help with daily activities, this study asks what determines whether that help comes entirely from relatives rather than from paid providers. The answer is not how sick someone is. Functional limitation and diagnosed neurological disease have small, barely detectable effects, while who a person lives with dominates every model tested. Read against the standard equity criterion for health services, which holds that need should drive utilization, this is a finding about inequity: the households least able to purchase an alternative are the ones absorbing the most unpaid labor.}
+\significancestatement{Most long-term care in the United States is unpaid work done by family members, and it appears in no measure of health spending. Using a nationally representative survey of 2,142 older adults who need help with daily activities, this study asks what determines whether that help comes entirely from relatives rather than from paid providers; the answer is not how sick someone is. Functional limitation and diagnosed neurological disease have small, barely detectable effects, while who a person lives with dominates every model tested. Read against the standard equity criterion for health services, which holds that need should drive utilization, this is a finding about inequity: the households least able to purchase an alternative are the ones absorbing the most unpaid labor.}
 
 % Please include corresponding author, author contribution and author declaration information
 \authorcontributions{A.P. designed the study, wrote all analysis code, performed the analysis, and wrote the paper.}
@@ -36,7 +53,7 @@
 \keywords{informal caregiving $|$ long-term care $|$ machine learning $|$ health equity $|$ Health and Retirement Study}
 
 \begin{abstract}
-Long-term care in the United States is delivered largely by unpaid family members, a transfer invisible to health expenditure accounting. Using the 2022 Health and Retirement Study, I construct the share of monthly care hours a respondent receives from unpaid informal helpers ($n = 2{,}142$ recipients, $4{,}481$ helper records) and ask what predicts it. The outcome is close to degenerate: 84.7\% of recipients get every hour of their care from family and friends. Comparing ordinary least squares against cross-validated gradient boosting, a fractional-response specification, an explicit two-part model, and a multilayer perceptron, no model class explains more than about a tenth of held-out variance, and the neural network performs worse than predicting the sample mean. Across every specification, household composition dominates: living arrangement carries the largest coefficients and the largest SHAP attributions, while stroke ($\beta = -0.015$, $P = 0.03$) and functional limitation ($\beta = -0.026$, $P = 0.001$) are statistically detectable but small. Interaction tests reveal that care intensity and living alone interact ($\beta = -0.032$, $P = 0.005$), an effect independently recovered as the strongest pairwise SHAP interaction. Two methodological results follow: a two-tier target-leakage failure in network-derived features that inflates held-out $R^2$ from 0.087 to 0.644, and an automated procedure that reconstructs the crosswalk between US and English survey instruments at 71\% top-1 accuracy against a 0.2\% random baseline. All analysis is descriptive; no causal effect is estimated.
+Long-term care in the United States is largely by unpaid family members, a transfer invisible to health expenditure accounting. Using the 2022 Health and Retirement Study, I constructed the share of monthly care hours a respondent receives from unpaid informal helpers ($n = 2{,}142$ recipients, $4{,}481$ helper records) and ask what predicts it. 84.7\% of recipients receive all care from family or friends. Comparing ordinary least squares against cross-validated gradient boosting, a fractional-response specification, two-part models, and multilayer perceptrons, no model class explains more than a tenth of held-out variance; the neural network performs worse than predicting the sample mean. Across every specification, household composition dominates: living arrangement carries the largest coefficients and the largest SHAP attributions; stroke ($\beta = -0.015$, $P = 0.03$) and functional limitation ($\beta = -0.026$, $P = 0.001$) are statistically detectable but small. Interaction tests reveal care intensity and living alone interact ($\beta = -0.032$, $P = 0.005$), an effect recovered as the strongest pairwise SHAP interaction. A two-tier target-leakage in network features inflates held-out $R^2$ from 0.087 to 0.644. Automated US to English survey crosswalk achieved 71\% top-1 accuracy versus a 0.2\% random baseline. All analysis is descriptive; no causal effect is estimated.
 \end{abstract}
 
 \dates{This manuscript was compiled on \today}
@@ -53,44 +70,26 @@ Long-term care in the United States is delivered largely by unpaid family member
 
 
 % If your first paragraph (i.e. with the \dropcap) contains a list environment (quote, quotation, theorem, definition, enumerate, itemize...), the line after the list may have some extra indentation. If this is the case, add \parshape=0 to the end of the list environment.
-\dropcap{T}he majority of long-term care received by older Americans is not
-purchased. It is provided by spouses, adult children and other relatives,
-without pay and usually without training \cite{adi2018}. Because this labor
-never transacts, it is absent from national health expenditure accounts, and the
-households supplying it are invisible to the statistics used to allocate
-long-term care policy. The question this paper addresses is distributional: among
-older adults who already need help with basic daily activities, what determines
+\dropcap{M}ost long-term care for older Americans is unpurchased, provided by spouses and relatives often without training \cite{adi2018}. Since this labor
+never transacts, it is absent from health expenditure accounts, rendering supplying households invisible to policy statistics. Among
+older adults who need help with basic daily activities, what determines
 whether that help arrives entirely from family, or whether paid and
-institutional providers enter at all?
+institutional providers enter?
 
-Three frameworks make competing predictions. Andersen's behavioral model of
-health services use partitions determinants into \emph{predisposing}
-characteristics, \emph{enabling} resources, and \emph{need}, and supplies the
-field's standard equity criterion: in a well-functioning system need should
-dominate utilization, and the degree to which enabling resources instead drive
-it measures inequity. Cantor's hierarchical compensatory model holds that older
-adults draw on a ranked ordering of caregivers---spouse, then adult children,
-then other kin, then formal services---turning to each tier only when the
-preceding one is exhausted, which predicts that household composition should
-dominate. Litwak's task-specific model is the only one of the three that
-requires an \emph{interaction}: informal and formal providers are matched to
-tasks by comparative advantage, so the effect of rising need should depend on
-whether anyone is available in the household to absorb it.
+Three frameworks make competing predictions. Andersen's behavioral model partitions determinants into predisposing
+characteristics, enabling resources, and need; it supplies the standard equity criterion: in a well-functioning system need should
+dominate utilization, while reliance on enabling resources measures inequity. Cantor's hierarchical compensatory model holds that older
+adults draw on a ranked ordering of caregivers(spouse, adult children, other kin, formal services), exhausting each tier sequentially; this predicts household composition dominates. Litwak's task-specific model uniquely requires an interaction: informal and formal providers are matched to tasks by comparative advantage, meaning the effect of rising need depends on household availability.
 
-\paragraph{Related work.} Cross-national comparison has established that
-caregiving composition varies sharply with the structure of a country's
-long-term care system \cite{jang2012,oecd2023}, and microsimulation projects European
+\paragraph{Related work.} Cross-national comparisons establish that caregiving composition varies sharply with a country's long-term care system \cite{jang2012,oecd2023}, and microsimulation projects European
 informal care demand rising through 2050 \cite{cattaneo2025}. Work closest to
 this study examines how caregiving for adults with cognitive decline is
 distributed within and beyond the household \cite{geronb2025}. This paper
-extends that literature in three ways. First, it treats the informal share as a
-continuous bounded outcome rather than a binary caregiver-present indicator, and
-shows that the resulting spike at one has consequences for model choice that the
-existing literature does not address. Second, it compares five model families
+extends that literature in three ways. First, treating the informal share as a continuous bounded outcome, rather than a binary indicator, shows how the resulting spike at one affects model choice. Second, it compares five model families
 under a design that respects household clustering, rather than reporting a
-single specification. Third, it treats the failure modes---leakage, a
-non-surviving hypothesis, an automated harmonization that fails confidently---as
-results in their own right.\Endparasplit
+single specification. Third, it treats the failure modes, leakage, a
+non-surviving hypothesis, and a failed automated harmonization, as
+results of their own.\Parasplit
 
 %The \Endparasplit command is used to end the formatting of the text column size that was set by the \Firstpage command. This will restore the default column size for the subsequent text.
 %
@@ -100,17 +99,17 @@ results in their own right.\Endparasplit
 
 \section*{Data}
 
-\paragraph{Source and window.} The Health and Retirement Study \cite{hrs2022} is
+\paragraph{Source and window} The Health and Retirement Study \cite{hrs2022} is
 a nationally representative biennial panel of US adults over 50 and their
 spouses, fielded by the Survey Research Center at the University of Michigan.
 This analysis uses the 2022 Core final release together with the 2022 Tracker
-file. The 2022 wave
+file; the 2022 wave
 contains 15,787 respondent records collected by in-person, telephone and web
 interview, with proxy interviews taken where a respondent could not self-report.
-Proxy status matters here because cognitive impairment is simultaneously a
+Proxy status matters because cognitive impairment is simultaneously a
 predictor of interest and a cause of proxy interviewing.
 
-\paragraph{Unit of analysis.} The original data are supplied at two levels. The
+\paragraph{Unit of analysis} The original data are supplied at two levels. The
 respondent-level file records difficulty with six activities of daily living
 (ADLs: dressing, walking, bathing, eating, transferring, toileting) and five
 instrumental activities (IADLs: meal preparation, shopping, telephone use,
@@ -120,12 +119,12 @@ days of help per month, hours per helping day, whether insurance pays them, and
 out-of-pocket payment. The unit of analysis in this paper is the
 \emph{respondent}; helper records are aggregated up.
 
-\paragraph{Outcome construction.} For each helper record, monthly care hours are
+\paragraph{Outcome construction} For each helper record, monthly care hours are
 days of help multiplied by hours per helping day, reconciling the three ways HRS
 permits the frequency question to be answered. A helper is classified as
-\emph{formal} if the relationship is an organization, an institutional employee,
-a paid helper, a professional or an online service, and as \emph{informal}
-otherwise---except that informal helpers whom the household reports paying out of
+formal if the relationship is an organization, an institutional employee,
+a paid helper, a professional or an online service, and as informal
+otherwise: except that informal helpers whom the household reports paying out of
 pocket are reclassified as formal. That rule matters substantively: a daughter
 being paid to provide care is performing paid work, and counting her as informal
 would understate the market's role. Summing within respondent gives
@@ -138,18 +137,17 @@ where $\mathcal{H}_i$ is the set of helpers for respondent $i$, $\mathcal{I}_i
 restricting to respondents aged 50 and over with usable hours data, the analysis
 sample is $n = 2{,}142$ with 33 base predictors.
 
-\paragraph{Missingness.} HRS encodes ``don't know'' and ``refused'' as reserved
+\paragraph{Missingness} HRS encodes ``don't know'' and ``refused'' as reserved
 numeric values (8/9, 98/99, $-8$); these are converted to missing per variable
 rather than read as data. For every predictor with more than 1\% missingness a
-binary indicator is created before median imputation. This is deliberate rather
-than conventional. Allowing a gradient-boosted model to route missing values
-down its own default branches would fold the \emph{fact} of missingness into the
+binary indicator is created before median imputation; this is deliberate. Allowing a gradient-boosted model to route missing values
+down its own default branches would fold the fact of missingness into the
 SHAP attribution of the parent feature, which misleads when missingness is not
-at random---and here it plainly is not. The word-recall test is missing for 21\%
-of the sample, and missing precisely among the cognitively impaired and
+at random, and here it is not. The word-recall test is missing for 21\%
+of the sample, and missing among the cognitively impaired and
 proxy-interviewed respondents whose care arrangements are most distinctive.
 
-\paragraph{Limitations of the source.} Four are material. The design is
+\paragraph{Limitations of the source} Four are important to note. The design is
 cross-sectional, so nothing here speaks to how arrangements evolve as need
 progresses. Survey weights are available for only 80.3\% of the sample, and
 critically for none of the 73 nursing-home residents, because HRS respondent
@@ -159,29 +157,105 @@ about helpers who assist the respondent personally, and facility staff appear
 under-reported relative to family visits, which produces a counterintuitive
 positive association between nursing-home residence and the informal share.
 Finally, the outcome is constructed from the helper roster, so any feature
-derived from that roster is downstream of the outcome---a point returned to
+derived from that roster is downstream of the outcome: a point returned to
 below.
 
 \section*{Methods}
 
-\paragraph{Cleaning.} \texttt{code/00\_build\_analysis\_file.py} performs every
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{\linewidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\sffamily\scriptsize,
+  psrc/.style   ={draw=black, fill=black!5, rounded corners=2pt, align=center,
+                  inner sep=4pt, minimum height=11mm, text width=34mm},
+  pmerge/.style ={draw=black, fill=black!9, rounded corners=2pt, align=center,
+                  inner sep=6pt, minimum height=14mm, text width=104mm, very thick},
+  pdata/.style  ={draw=black, fill=white,   rounded corners=2pt, align=center,
+                  inner sep=4pt, minimum height=10mm, text width=54mm},
+  pout/.style   ={draw=black, fill=white,   rounded corners=2pt, align=center,
+                  inner sep=4pt, minimum height=16mm, text width=26mm},
+  pstep/.style  ={draw=black!55, fill=white, rounded corners=1pt, align=center,
+                  inner sep=3pt, minimum height=6mm, text width=58mm},
+  ar/.style     ={-{Latex[length=2mm]}, thick},
+  arf/.style    ={-{Latex[length=1.6mm]}, draw=black!55},
+]
+
+\node[psrc] (trk) at (-1.4,0) {HRS 2022 Core\\\textit{tracker file}\\one row per respondent};
+\node[psrc] (hp)  at (2.6,0)  {HRS 2022 Section G\\\textit{helper file} \texttt{h22g\_hp}\\one row per helper};
+\node[psrc] (els) at (10.4,0) {ELSA derived-variable\\dictionary\\403 candidate variables};
+
+\node[pmerge] (build) at (0.6,-2.7)
+  {\texttt{00\_build\_analysis\_file.py}\\[3pt]
+   The outcome is not a survey item, so it is reconstructed: for each recipient, sum monthly\\
+   care hours across the helper roster and take the unpaid-family share of the total.\\[2pt]
+   Helpers paid out of pocket by the family count as \textbf{formal}. What matters is whether\\
+   the household bears the cost, not whether the helper happens to be a relative.};
+
+\node[pstep] (s1) at (0.6,-5.1) {Helper records in Section G \hfill \textbf{4{,}481}};
+\node[pstep] (s2) at (0.6,-5.9) {with usable hours and relationship \hfill \textbf{3{,}666}};
+\node[pstep] (s3) at (0.6,-6.7) {respondents represented \hfill \textbf{2{,}425}};
+\node[pstep] (s4) at (0.6,-7.5) {with total care hours $>0$ \hfill \textbf{2{,}161}};
+\node[pstep] (s5) at (0.6,-8.3) {aged 50+, merged to covariates \hfill \textbf{2{,}142}};
+
+\node[pdata] (proc) at (0.6,-10.0)
+  {\texttt{hrs2022\_caregiving.csv} $+$ \texttt{\_networks.csv}\\[1pt]\textbf{2{,}142 care recipients}};
+
+\node[pout] (m1) at (-3.4,-12.5) {\textbf{Baseline}\\OLS, ridge,\\gradient boosting\\\texttt{02}};
+\node[pout] (m2) at (-0.2,-12.5) {\textbf{Bounded}\\fractional logit,\\two-part model\\\texttt{03}};
+\node[pout] (m3) at (3.0,-12.5)  {\textbf{Capacity}\\multilayer\\perceptron\\\texttt{06}};
+\node[pout] (m4) at (6.2,-12.5)  {\textbf{Structure}\\network features,\\leakage audit\\\texttt{05, 07}};
+\node[pout] (m5) at (10.4,-12.5) {\textbf{Crosswalk}\\LSA matching of\\variable descriptions\\\texttt{08}};
+
+\node[pdata, text width=112mm] (val) at (2.6,-15.0)
+  {\textbf{5-fold GroupKFold on household}, so a married couple never straddles the split,\\
+   with survey-weighted estimates reported alongside unweighted ones\\[2pt]
+   \textbf{16 figures, 19 tables} in \texttt{output/}};
+
+\draw[ar] (trk.south) -- ++(0,-0.9) -| ([xshift=14mm]build.north west);
+\draw[ar] (hp.south)  -- ++(0,-0.9) -| ([xshift=-14mm]build.north east);
+\draw[ar] (els) -- (m5);
+\draw[arf] (build) -- (s1);
+\draw[arf] (s1) -- (s2); \draw[arf] (s2) -- (s3);
+\draw[arf] (s3) -- (s4); \draw[arf] (s4) -- (s5);
+\draw[ar] (s5) -- (proc);
+\draw (proc.south) -- ++(0,-0.7) coordinate (bus1);
+\draw (m1.north |- bus1) -- (m4.north |- bus1);
+\foreach \n in {m1,m2,m3,m4} \draw[ar] (\n.north |- bus1) -- (\n.north);
+\draw (m1.south) -- ++(0,-0.7) coordinate (bus2);
+\draw (m1.south |- bus2) -- (m5.south |- bus2);
+\foreach \n in {m2,m3,m4,m5} \draw (\n.south) -- (\n.south |- bus2);
+\draw[ar] (val.north |- bus2) -- (val.north);
+\end{tikzpicture}}
+\caption{The analysis pipeline, in the order it runs. Grey boxes are sources
+taken as given; the large box is where the outcome is constructed, and that
+construction is what makes the leakage audit in \texttt{07} necessary: every
+feature derived from the helper roster is downstream of the outcome by design,
+not by accident. The ladder reports the sample remaining at each filtering step.}
+\label{fig:pipeline}
+\end{minipage}
+\end{figure}
+
+\paragraph{Cleaning} \texttt{code/00\_build\_analysis\_file.py} performs every
 cleaning step. HRS reserved codes for ``don't know'' and ``refused'' are mapped
-to missing before any arithmetic, via \texttt{clean\_codes} in
+to missing before any calculations, via \texttt{clean\_codes} in
 \texttt{utils.py}; leaving them in place would enter values such as 998 into an
 hours total. Helper records with no usable hours or no relationship code are
 dropped (4{,}481 records to 3{,}666). Helpers paid out of pocket by the family
 are reclassified from informal to formal, because the analytic distinction is
 whether the household bears the cost, not whether the helper is a relative.
 
-\paragraph{Merging.} Three joins, all \textbf{exact on the composite key
-(HHID, PN)}, which uniquely identifies a respondent in HRS; no fuzzy matching is
+\paragraph{Merging} Three joins, all exact on the composite key
+(HHID, PN), which uniquely identifies a respondent in HRS; no unclear matching is
 used anywhere. The helper file is aggregated to respondent level and
 \textbf{inner joined} to the respondent file, then \textbf{left joined} to the
-tracker file for survey weights and household identifiers. The script prints row
+tracker file for survey weights and household identifiers; the script prints row
 counts before and after each join. Table~\ref{tab:sample} reports the resulting
 attrition.
 
-\paragraph{Variable definitions.} The outcome is
+\paragraph{Variable definitions} The outcome is
 \begin{equation}
 \label{eq:outcome}
 s_i \;=\; \frac{\sum_{h \in \mathcal{I}_i} \text{hours}_{ih}}{\sum_{h \in \mathcal{H}_i} \text{hours}_{ih}},
@@ -194,29 +268,29 @@ relative; number of children); clinical need (ADL count, IADL count,
 self-rated health, stroke, dementia, word recall, memory rating); and care
 intensity (total monthly hours, number of helpers).
 
-\paragraph{Train-test split and validation.} Two schemes are reported because
-they disagree. A single \textbf{25\% held-out split} (\texttt{random\_state} =
+\paragraph{Train-test split and validation} Two schemes are reported because
+they disagree. A single 25\% held-out split (\texttt{random\_state} =
 20260818) is used in \texttt{code/02\_baseline\_ols\_vs\_gbm.py} for the
 model-family comparison, with booster hyperparameters selected by an inner
-five-fold grid search on the training portion only, so the test split is touched
-once. All other performance figures use \textbf{five-fold cross-validation
-grouped on household}, which is the design adopted from
+five-fold grid search on the training portion only, so the test split is evaluated
+once. All other performance figures use five-fold cross-validation
+grouped on household, which is the design adopted from
 \texttt{code/04\_weights\_and\_clustered\_cv.py} onward. Every random seed is
 fixed at 20260818.
 
-\paragraph{Identification.} This is a \textbf{descriptive and predictive}
+\paragraph{Identification} This is a descriptive and predictive
 analysis. There is no randomization, instrument or discontinuity, and living
-arrangement is plainly not randomly assigned; it is as plausibly a consequence
+arrangement is not randomly assigned; it is as plausibly a consequence
 of care need as a determinant of how that need is met. No causal effect is
 estimated or implied anywhere in this paper.
 
-\paragraph{Design.} All held-out performance is estimated by five-fold
+\paragraph{Design} All held-out performance is estimated by five-fold
 cross-validation grouped on household, so that no household spans the
 train/test boundary. Spouses are both interviewed in HRS, and 5.3\% of
 households contribute more than one respondent, covering about 10\% of rows.
 Standard errors on interaction coefficients are clustered on household to match.
 
-\paragraph{Model families.} Five specifications are compared on identical folds
+\paragraph{Model families} Five specifications are compared on identical folds
 and identical features: (i) ordinary least squares on standardized predictors;
 (ii) a gradient-boosted regressor (XGBoost) with depth, tree count, shrinkage
 and minimum child weight selected by nested five-fold cross-validation on the
@@ -246,21 +320,20 @@ The estimator stays consistent for $\beta$ even though $s_i$ is a proportion
 rather than a binary outcome, and predictions are confined to $(0,1)$ by
 construction.
 
-\paragraph{Interpretation.} Linear models are interpreted through standardized
+\paragraph{Interpretation} Linear models are interpreted through standardized
 coefficients with 95\% confidence intervals; tree models through SHAP values,
 which decompose each individual prediction into per-feature contributions.
-These are different quantities---a coefficient is a partial effect identical for
+These are different quantities: a coefficient is a partial effect identical for
 every respondent, a SHAP value is a marginal contribution that varies across
-them---and the paper treats their disagreement as informative rather than as
-error. Pairwise SHAP interaction values are used to detect interactions the
+them; the paper treats their disagreement as informative. Pairwise SHAP interaction values are used to detect interactions the
 model used, alongside pre-specified product terms.
 
 \section*{Results}
 
-\paragraph{The analysis sample.} Table~\ref{tab:sample} characterizes it and
+\paragraph{The analysis sample} Table~\ref{tab:sample} characterizes it and
 records where each step of attrition occurs.
 
-\begin{table}[t!]
+\begin{table}[!ht]
 \centering
 \caption{Construction of the analysis sample, HRS 2022 Core. Each row is the
 count surviving that step. The largest single loss is helper records missing
@@ -293,16 +366,19 @@ after it. Of respondents receiving any help, 84.7\% receive every hour of it
 from unpaid family and friends; 5.9\% receive none informally; the intermediate
 range is nearly empty. Median care intensity is 52 hours per month with a long
 right tail, and respondents have on average 1.7 helpers. Care arrangements in
-this population are close to binary---either the family absorbs the entire load
-or formal providers are involved---and there is correspondingly little variance
+this population are close to binary: either the family absorbs the entire load
+or formal providers are involved; there is correspondingly little variance
 for any model to explain.
 
-\begin{figure}[tbhp]
+\begin{figure}[!ht]
 \centering
-\includegraphics[width=0.80\linewidth]{figures/f01_outcome_and_intensity.png}
+\begin{minipage}{0.80\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f01_outcome_and_intensity.png}
 \caption{Distribution of the informal care share and of care intensity.
 HRS 2022, $n = 2{,}142$ respondents receiving any help with ADLs or IADLs.}
 \label{fig:outcome}
+\end{minipage}
 \end{figure}
 
 Daughters are the modal caregiver (1,100 helper records), ahead of spouses and
@@ -314,9 +390,9 @@ does not itself predict.
 
 The mean informal share declines from 0.928 among respondents with no ADL
 limitations to 0.837 among those with four, then flattens and partially
-reverses: the most severely limited respondents are \emph{not} the most likely
+reverses: the most severely limited respondents are not the most likely
 to have formal help. Respondents with a stroke, dementia or Alzheimer's
-diagnosis have a mean informal share of 0.888 against 0.900 for those without---a
+diagnosis have a mean informal share of 0.888 against 0.900 for those without: a
 difference of roughly one percentage point.
 
 Against this, living arrangement carries the largest effects in every
@@ -331,24 +407,27 @@ not need, is allocating care.
 \subsection*{Coefficients and SHAP disagree, for identifiable reasons}
 
 The Spearman correlation between the OLS importance ranking and the SHAP ranking
-is $\rho = 0.157$ (Fig.~\ref{fig:forest}). Two features drive the disagreement.
+is $\rho = 0.157$ (Fig.~\ref{fig:forest}); two features drive the disagreement.
 Living alone ranks first by SHAP and 24th by coefficient magnitude, because the
 three living-arrangement indicators nearly partition the sample: in the linear
 model they compete for a shared signal against an omitted reference category and
 the coefficient mass distributes arbitrarily among them, while the tree splits on
 whichever single indicator separates best and credits that one. Total care hours
 ranks second by SHAP and 31st of 33 by coefficient, because its relationship to
-the outcome is non-monotone---very low-intensity help is almost always informal,
-very high-intensity help skews formal, the middle is mixed---so a single linear
+the outcome is non-monotone: very low-intensity help is almost always informal,
+very high-intensity help skews formal, the middle is mixed; thus, a single linear
 slope averages to nearly nothing while the tree captures it with a few splits.
 
-\begin{figure}[tbhp]
+\begin{figure}[!ht]
 \centering
-\includegraphics[width=0.80\linewidth]{figures/f04_forest_vs_shap.png}
+\begin{minipage}{0.80\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f04_forest_vs_shap.png}
 \caption{Standardized OLS coefficients with 95\% confidence intervals against
 the SHAP beeswarm for the tuned gradient-boosted regressor. The two methods
 rank the same predictors differently ($\rho = 0.37$).}
 \label{fig:forest}
+\end{minipage}
 \end{figure}
 
 \subsection*{No model class does well, and the neural network does worst}
@@ -362,7 +441,7 @@ their level. Tuning does the work: an untuned booster scores $-0.053$, worse
 than predicting the mean, so reporting only the tuned figure would misrepresent
 boosting as reliably superior at this sample size.
 
-\begin{table}[tbhp]
+\begin{table}[!ht]
 \centering
 \caption{Held-out performance; regression scored by $R^2$, classifiers by AUC.
 The lower panel uses five-fold cross-validation grouped on household, so a
@@ -395,15 +474,14 @@ Multilayer perceptron     & informal share & $-0.001$ \\
 The multilayer perceptron scores below the intercept-only baseline. An
 architecture search over seven configurations from a
 single eight-unit layer to three stacked layers finds no configuration that
-beats the mean, and the best is the smallest. An $L_2$ sweep over five penalties
-points the same way: cross-validated performance improves monotonically as the
+beats the mean, and the best is the smallest; an $L_2$ sweep over five penalties
+points the same: cross-validated performance improves monotonically as the
 penalty rises toward the linear limit, from $-0.17$ at $\alpha = 10^{-4}$ to
 $-0.001$ at $\alpha = 1$. Both are the signature of a model with far more
 parameters than 2{,}142 rows can identify.
 
 The result was predicted before fitting, which is what makes it informative.
-Boosted trees are the default on small tabular data; neural networks earn their
-keep on high-dimensional structured inputs, none of which is present here.
+Boosted trees are the default on small tabular data; neural networks are helpful for high-dimensional structured inputs, none of which is present here.
 
 \subsection*{A bounded outcome needs a bounded likelihood}
 
@@ -413,16 +491,19 @@ Eq.~\ref{eq:twopart} are constrained by construction and produce none, at
 comparable predictive accuracy (Fig.~\ref{fig:twopart}). Decomposing the
 two-part model is informative in itself: the first stage, predicting whether any
 formal care is present, reaches AUC 0.710 and is well calibrated, while the
-second stage---how much of the load formal care takes once present---is close to
+second stage, how much of the load formal care takes once present, is close to
 unpredictable from these covariates. The covariates tell you whether the market
 enters, not how far it goes.
 
-\begin{figure}[tbhp]
+\begin{figure}[!ht]
 \centering
-\includegraphics[width=0.80\linewidth]{figures/f06_two_part.png}
+\begin{minipage}{0.80\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f06_two_part.png}
 \caption{A bounded outcome with a spike at one requires a bounded likelihood.
 Red bands in the left panel mark the impossible region.}
 \label{fig:twopart}
+\end{minipage}
 \end{figure}
 
 \subsection*{Need and living arrangement interact}
@@ -441,21 +522,24 @@ same interaction is stronger evidence than either alone.
 The within-group need gradients are also revealing. The slope of the informal
 share on ADL count is $-0.011$ ($P = 0.0006$) among respondents living with a
 partner and $-0.014$ ($P = 0.031$) among those living with a relative, but a
-flat and insignificant $-0.005$ ($P = 0.52$) among those living alone. For
+flat and insignificant $-0.005$ ($P = 0.52$) among those living alone; for
 people who live alone, additional functional limitation does not
-systematically bring formal care in---which is the opposite of what an
+systematically bring formal care in: which is the opposite of what an
 equity-satisfying system would produce.
 
-\begin{figure}[tbhp]
+\begin{figure}[!ht]
 \centering
-\includegraphics[width=0.80\linewidth]{figures/f15_interaction_grid.png}
+\begin{minipage}{0.80\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f15_interaction_grid.png}
 \caption{Testing the prediction that need and household structure interact.
 Panel B shows pre-specified interaction coefficients with household-clustered
-standard errors; panel C shows interactions the tree actually used.}
+standard errors; panel C shows interactions the tree used.}
 \label{fig:inter}
+\end{minipage}
 \end{figure}
 
-\begin{table}[tbhp]
+\begin{table}[!ht]
 \centering
 \caption{The five interactions significant at the 5\% level, of fourteen
 pre-specified tests. Standard errors are clustered on household.}
@@ -485,20 +569,19 @@ $P$-values should not be read as if each test stood alone.
 \subsection*{A two-tier leakage failure}
 
 Treating each respondent's helper set as an ego network yields nine structural
-features. Two are the outcome re-encoded---\texttt{net\_any\_formal} is true
-exactly when the informal share is below one---and including them lifts
-cross-validated $R^2$ from 0.087 to 0.644. Removing them is not sufficient.
-Four more, the kin-composition features, are zero exactly when nobody in the
+features. Two are the outcome re-encoded: \texttt{net\_any\_formal} is true
+exactly when the informal share is below one, and including them lifts
+cross-validated $R^2$ from 0.087 to 0.644; removing them is not sufficient.
+Four more being removed, the kin-composition features, are zero when nobody in the
 roster is family, which is the same event as the informal share being zero: 94
-respondents have zero distinct kin types and their mean informal share is
-exactly 0.000. That second tier still yields $R^2 = 0.553$, and is invisible to
+respondents have zero distinct kin types and their mean informal share is 0.000. That second tier still yields $R^2 = 0.553$, and is invisible to
 a correlation scan because each feature looks unremarkable in isolation. With
-both tiers removed, the genuinely exogenous network features move $R^2$ from
-0.0874 to 0.0864---that is, not at all. Figure~\ref{fig:b-leakage} shows both
+both tiers removed, the exogenous network features move $R^2$ from
+0.0874 to 0.0864, which is essentially not at all. Figure~\ref{fig:b-leakage} shows both
 tiers: the ladder of $R^2$ across the three feature sets, and the mechanism that
 makes the first tier a re-encoding of the outcome rather than a predictor of it.
 
-The general point is that the outcome is \emph{constructed from} the helper
+The general point is that the outcome is constructed from the helper
 roster, so every roster-derived feature is downstream of it. The operative test
 is not whether a feature correlates with the outcome but whether it could have
 been known without knowing the outcome.
@@ -506,22 +589,22 @@ been known without knowing the outcome.
 \subsection*{Automated cross-national harmonization}
 
 Extending this design across countries requires mapping HRS variables onto their
-counterparts in sister surveys, and that mapping is where such projects stall:
+counterparts in sister surveys, and that mapping is where there may be a stall:
 the English Longitudinal Study of Ageing calls the dressing item
 \texttt{headldr} where HRS calls it \texttt{SG014}. Embedding the variable
-\emph{descriptions} and matching on cosine similarity reconstructs the crosswalk
+descriptions and matching on cosine similarity reconstructs the crosswalk
 at 71.4\% top-1 and 78.6\% top-5 accuracy against all 403 ELSA derived
 variables, where random selection would score 0.2\%
 (Fig.~\ref{fig:b-matching}).
 
-The failure pattern is the useful part. On ten ADL and IADL items the matcher
+The failure pattern is the useful part; on ten ADL and IADL items the matcher
 gets nine right. On four items where the two studies measure the same construct
-with different instruments it gets zero right, and does so confidently---matching
+with different instruments it gets zero right; e.g. matching
 ``number of years in school'' to ELSA's count of adults in the benefit unit at
 0.82 similarity. However, all four errors fall in the bottom four by
-\emph{similarity margin}, the gap between the best and second-best candidate. A
-rule that auto-accepts high-margin matches and routes the rest to a human would
-have caught every error while accepting 71\% of the crosswalk automatically. A
+similarity margin, the gap between the best and second-best candidate; this is a
+rule that auto-accepts high-margin matches and routes the rest to a human that would
+have caught the errors while accepting 71\% of the crosswalk automatically. A
 matcher that is wrong 29\% of the time is not deployable; one that is wrong 29\%
 of the time and knows which 29\% is.
 
@@ -529,283 +612,29 @@ of the time and knows which 29\% is.
 
 Across five model families, three outcome specifications, survey weighting,
 household-clustered validation, network features and an interaction analysis,
-the substantive conclusion does not move: household composition determines who
-absorbs the cost of long-term care, and clinical need barely registers. That
-stability is the most useful thing this quantity of robustness work can report.
+the substantive conclusion does not change: household composition determines who
+absorbs the cost of long-term care, and clinical need barely registers; that
+stability is the most useful thing this quantity of robustness can report.
 
-The equity reading is direct. Andersen's criterion holds that need should drive
+The equity reading is direct: Andersen's criterion holds that need should drive
 utilization and that enabling resources driving it instead is the signature of
-inequity. Here enabling structure dominates, and the interaction results
-sharpen the point: among people living alone---who by construction have no
-household member to absorb care---additional functional limitation does not
+inequity; here enabling structure dominates, and the interaction results
+sharpen the point: among people living alone, who by construction have no
+household member to absorb care, additional functional limitation does not
 reliably bring formal provision in. The households with the least internal
 capacity to absorb care are not being compensated by the market.
 
-Four limitations bound it. The analysis is cross-sectional and single-country;
+Four limitations bound the study; moreover, nothing here is a
+causal estimate. The analysis is cross-sectional and single-country;
 the outcome's degeneracy caps achievable accuracy for every model class, so
 absolute performance is not a verdict on the methods; living arrangement is not
 randomly assigned and is plausibly a consequence of care need as much as a
-determinant of how it is met; and the nursing-home weighting artefact means
-institutionalized respondents belong in a separate model. Nothing here is a
-causal estimate.
-
-\section*{Agentic Analysis}
-
-An AI assistant (Claude, Anthropic) was used throughout. Transcripts are in
-\texttt{docs/agentic/}. This section is excluded from the page limit.
-
-My own role is quickly stated. I chose the research question, the outcome
-definition, the model families to compare, and the interaction hypotheses; I
-executed and read every line of code; and I traced every number I report back to
-a codebook or an output table. What follows spends its space on the four
-episodes where the assistant was wrong, because those are the transferable part.
-
-\paragraph{Rejected: a harmonization test that scored 100\%.} The first version
-of the crosswalk experiment reported perfect top-one accuracy for all three
-matchers, including a lexical baseline that should not have been competitive.
-Inspecting the ground-truth table explained it. The assistant had written the
-HRS side of the key itself, as paraphrases of the ELSA wording, and had drawn
-candidates from only 39 health variables. The matcher was scoring on words the
-assistant had planted and choosing among a shortlist it had pre-filtered.
-
-\emph{How it was wrong:} not a coding error. Every line ran, and the reported
-metric was correctly computed on the data it was given. The failure was in
-constructing an evaluation that could not produce a negative result. Rewriting
-the key from verbatim codebook labels and opening the candidate set to all 403
-ELSA derived variables dropped accuracy to 71\%, which is the number reported
-here. A confirmatory result had been manufactured by a badly built test, and
-nothing in the output signalled it.
-
-\paragraph{Rejected: a narrative written before the number existed.} Asked to
-examine household clustering, the assistant produced a paragraph explaining that
-clustering had inflated cross-validated performance and that grouped splitting
-corrected it. The direction was plausible and the prose was confident. The
-computation, run afterward, showed grouped cross-validation scoring
-\emph{higher} than naive splitting, with the gap smaller than the between-fold
-standard deviation.
-
-\emph{How it was wrong:} the explanation preceded the evidence and was fitted to
-the expected result rather than the observed one. Only 5.3\% of households
-contribute more than one respondent, so there is too little duplication to leak.
-Grouped splitting is retained as the defensible design, but the paper reports
-the non-result. Had I accepted the draft, the paper would have contained a
-fabricated finding that no reviewer could have caught from the text.
-
-\paragraph{Failure: two-tier target leakage, introduced by the assistant.} The
-nine care-network features were assistant-written and were not flagged as risky
-in the code or its comments. Including them lifted held-out $R^2$ from 0.087 to
-0.644.
-
-\emph{How it was wrong, tier one:} \texttt{net\_any\_formal} is true exactly
-when the informal share is below one. The feature and the outcome are two
-encodings of the same fact. This was caught in the first review pass, because
-the name says what it does.
-
-\emph{How it was wrong, tier two:} the kin-composition features are zero exactly
-when nobody in the roster is family, which is the same event as the informal
-share being zero. Ninety-four respondents have \texttt{net\_n\_kin\_types = 0}
-and their mean informal share is exactly 0.000. This survived a review pass and
-a correlation scan, because no single feature looked unusual on its own. It was
-found only by asking of each feature what event makes it zero. The assistant
-then described the corrected set as ``safe'' in its own commentary, which is the
-specific hazard: fluent, well-commented code carrying an error the fluency
-conceals.
-
-The root cause is structural rather than clerical. The outcome is
-\emph{constructed from} the helper roster, so every roster-derived feature is
-downstream of it by design. The operative test is not ``is this correlated with
-the outcome'' but ``could this have been known without knowing the outcome.''
-
-\paragraph{Failure: silently cropped figures.} A later revision produced figures
-whose titles were cut off in the saved files and whose captions rendered in a
-colour matching the background. The code looked correct.
-
-\emph{How it was wrong:} \texttt{shap.summary\_plot} mutates the active
-Matplotlib figure and the global \texttt{rcParams} as a side effect, so a title
-set before that call falls outside the saved bounding box. The assistant's first
-two fixes adjusted padding and layout parameters, treating the symptom; neither
-worked, and each was proposed with the same confidence as the last. The fix that
-held was structural: render each panel to its own file and composite afterward.
-An automated check now sweeps every rendered figure for ink touching the canvas
-edge, so the same failure cannot recur unnoticed.
-
-\paragraph{Accepted, and why.} One substantive proposal survived scrutiny: the
-missing-indicator strategy over native NaN handling in gradient boosting, on the
-argument that native handling contaminates SHAP attribution. I accepted it after
-confirming the missingness pattern was non-random, and it stands as a
-methodological commitment of the paper.
-
-\paragraph{What this implies.} All four failures share a shape: output that is
-internally consistent and externally wrong, produced with uniform confidence
-whether right or not. None would have been caught by a test suite, because the
-code did what it said. Each surfaced only when I asked what a quantity
-\emph{meant} rather than whether the script ran. AI assistance moved the
-bottleneck from writing code to verifying that the code answered the intended
-question, and the second is the harder job.
-
-\section*{Appendix A. The remaining figures}
-
-Four figures and three tables appear in the body. The pipeline produces sixteen
-figures and nineteen tables. The twelve held back are reproduced here with the
-captions they carry in the repository. This appendix and the Agentic Analysis
-section are excluded from the page limit.
-
-\subsection*{A.1 Description}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f02_helper_composition.png}
-\caption{Who the helpers are, across all 4{,}481 helper records in HRS 2022
-Section G. Daughters outnumber sons roughly two to one, which is the pattern the
-caregiving literature would predict and is the closest thing here to a
-validation of the reconstructed roster.}
-\label{fig:b-helpers}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f03_need_gradient.png}
-\caption{The unconditional need gradient, before it is split by living
-arrangement. Read alone this looks like need barely matters. Only splitting it,
-as in Fig.~\ref{fig:inter}, reveals that need matters a great deal for some
-households and not at all for others. The two figures are the same data.}
-\label{fig:b-gradient}
-\end{figure}
-
-\subsection*{A.2 Model comparison}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f05_importance_ranks.png}
-\caption{Importance-rank agreement across four methods. The
-coefficient-against-SHAP contrast in the body is one slice of this. Methods that
-answer different questions rank predictors differently, and the spread here is
-the reason a single importance ranking should not be reported on its own.}
-\label{fig:b-ranks}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f10_neural_net.png}
-\caption{A neural network buys nothing on 2{,}142 rows of tabular survey data.
-Panel A searches seven architectures and finds none that beats the mean, with
-the best being the smallest. Panel B sweeps five $L_2$ penalties and improves
-monotonically toward the linear limit. Both are the signature of a model with
-far more parameters than the data can identify.}
-\label{fig:b-mlp}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f07_weights_and_clustering.png}
-\caption{Survey weights and household clustering. Weighting changes the
-estimand, because all 73 nursing-home residents carry no weight and are silently
-dropped. Household-grouped cross-validation scores \emph{higher} than naive
-splitting, which is the opposite of the expected direction and is reported as
-such.}
-\label{fig:b-weights}
-\end{figure}
-
-\subsection*{A.3 Care networks}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f08_care_networks.png}
-\caption{Four real care networks, drawn from Section G helper records and
-selected to span the structural range rather than sampled at random. Edge
-thickness is monthly care hours. The scalar covariates used in scripts 02--04
-cannot distinguish the first panel from the second: both are 100\% informal, but
-one rests on a single person and the other spreads across four.}
-\label{fig:b-networks}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f09_network_features.png}
-\caption{The features derived from those networks. Panel C reports simple
-Pearson correlations, not partial effects; they establish that the features move
-with the outcome, while the ablation in Fig.~\ref{fig:b-ablation} tests whether
-they add anything once the existing covariates are already in the model. They do
-not.}
-\label{fig:b-netfeat}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f11_leakage.png}
-\caption{The two-tier leakage failure of the previous section, in the order it
-was found. Panel A is the ablation ladder read from the contaminated end
-downward: adding the tier-1 features lifts household-clustered $R^2$ to 0.644 and
-the tier-2 kin-composition features still hold it at 0.553, while the genuinely
-exogenous tier-3 shape features leave the base covariates where they were. An
-improvement of that size on an outcome this degenerate is a symptom rather than a
-result. Panel B is the mechanism for tier 1: the informal share drops below one
-exactly when a formal helper is present, so \texttt{net\_any\_formal} and the
-outcome are two encodings of one fact. Points are jittered horizontally.}
-\label{fig:b-leakage}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f12_ablation_and_shap.png}
-\caption{Feature-block ablation with the final model's SHAP summary. Blocks are
-added cumulatively under identical folds; the shaded band is one standard
-deviation across folds and is wide enough that the last two steps overlap, so
-the apparent gain from network structure is not distinguishable from noise.}
-\label{fig:b-ablation}
-\end{figure}
-
-\subsection*{A.4 The cross-national crosswalk}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f13_embedding_space.png}
-\caption{The embedding space the matcher searches: a t-SNE projection of LSA
-embeddings of variable descriptions, 14 HRS items against all 403 ELSA derived
-variables. Dashed lines connect each HRS item to its hand-coded true
-counterpart; short lines mean the embedding placed them close without being told
-they match. t-SNE distances are not metric, so read adjacency, not scale.}
-\label{fig:b-embed}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f14_matching_accuracy.png}
-\caption{How well that search does. Panel A scores each matcher against the
-hand-coded key at top-1, top-3 and top-5, where top-3 means the true counterpart
-appeared among the three highest-scoring candidates out of 403. Panel B is the
-per-item similarity margin, the gap between the best and second-best candidate,
-sorted low to high with incorrect matches in orange; every error falls in the
-bottom four, which is what makes the margin usable as a triage rule rather than a
-diagnostic after the fact. Panel C separates the similarity scores of true pairs
-from all non-matching pairs. Fourteen items is a small answer key, so this
-establishes that the approach is viable, not that it is validated at scale.}
-\label{fig:b-matching}
-\end{figure}
-
-\subsection*{A.5 Interaction structure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.76\linewidth]{figures/f16_shap_interactions.png}
-\caption{The strongest interaction decomposed directly. Panel A splits the
-sample by living arrangement and plots the mean informal share across quartiles
-of care intensity; non-parallel lines are the interaction. Panel B shows the
-SHAP interaction values for the same pair from the tuned booster.}
-\label{fig:b-shapinter}
-\end{figure}
-
-\subsection*{A.6 Omitted tables}
-
-Sixteen tables are the numeric backing for results stated in prose and are not
-reproduced here, running from the sample-construction audit and descriptives
-through the coefficient and cross-validation comparisons to the ablation ladder,
-the crosswalk with its per-item similarities, and the SHAP interaction pairs.
-All are committed as CSV in \texttt{output/tables/}.
+determinant of how it is met; and the nursing-home weighting artifact means
+institutionalized respondents belong in a separate model. 
 
 \section*{Materials and Methods}
 
-All code is available at \url{https://github.com/alannap27/qss45-informal-care}
+All code is available at \url{https://github.com/alannap27/qss45_informal_care/tree/main}
 as ten numbered Python scripts with shared utilities in \texttt{code/utils.py}
 and figure layout rules in \texttt{code/figstyle.py}. HRS microdata are not
 redistributable and require free registration at \url{https://hrs.isr.umich.edu};
@@ -825,5 +654,636 @@ the QSS 45 cohort for feedback on an earlier version of these results.}
 \showacknow
 
 \bibliography{qss45}
+
+\section*{Appendix A. The remaining figures}
+
+Four figures and three tables appear in the body. The pipeline produces sixteen
+figures and nineteen tables; the twelve held back are reproduced here with the
+captions they carry in the repository. 
+
+\subsection*{A.1 Description}\leavevmode\par\nobreak
+\needspace{6\baselineskip}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f02_helper_composition.png}
+\caption{Who the helpers are, across all 4{,}481 helper records in HRS 2022
+Section G. Daughters outnumber sons roughly two to one, which is the pattern the
+caregiving literature would predict and is the closest thing here to a
+validation of the reconstructed roster.}
+\label{fig:b-helpers}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f03_need_gradient.png}
+\caption{The unconditional need gradient, before it is split by living
+arrangement. Read alone this looks like need barely matters; only splitting it,
+as in Fig.~\ref{fig:inter}, reveals that need matters a great deal for some
+households and not at all for others. The two figures are the same data.}
+\label{fig:b-gradient}
+\end{minipage}
+\end{figure}
+
+\subsection*{A.2 Model comparison}\leavevmode\par\nobreak
+\needspace{6\baselineskip}
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f05_importance_ranks.png}
+\caption{Importance-rank agreement across four methods. The
+coefficient-against-SHAP contrast in the body is one slice of this. Methods that
+answer different questions rank predictors differently, and the spread here is
+the reason a single importance ranking should not be reported on its own.}
+\label{fig:b-ranks}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f10_neural_net.png}
+\caption{A neural network buys nothing on 2{,}142 rows of tabular survey data.
+Panel A searches seven architectures and finds none that beats the mean, with
+the best being the smallest. Panel B sweeps five $L_2$ penalties and improves
+monotonically toward the linear limit. Both are the signature of a model with
+far more parameters than the data can identify.}
+\label{fig:b-mlp}
+\end{minipage}
+\end{figure}
+
+\newpage
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f07_weights_and_clustering.png}
+\caption{Survey weights and household clustering. Weighting changes the
+estimand, because all 73 nursing-home residents carry no weight and are silently
+dropped. Household-grouped cross-validation scores higher than naive
+splitting, which is the opposite of the expected direction and is reported as
+such.}
+\label{fig:b-weights}
+\end{minipage}
+\end{figure}
+
+\subsection*{A.3 Care networks}\leavevmode\par\nobreak
+\needspace{6\baselineskip}
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f08_care_networks.png}
+\caption{Four real care networks, drawn from Section G helper records and
+selected to span the structural range rather than sampled at random. Edge
+thickness is monthly care hours. The scalar covariates used in scripts 02--04
+cannot distinguish the first panel from the second: both are 100\% informal, but
+one rests on a single person and the other spreads across four.}
+\label{fig:b-networks}
+\end{minipage}
+\end{figure}
+\newpage
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f09_network_features.png}
+\caption{The features derived from those networks. Panel C reports simple
+Pearson correlations, not partial effects; they establish that the features move
+with the outcome, while the ablation in Fig.~\ref{fig:b-ablation} tests whether
+they add anything once the existing covariates are already in the model; however, they do
+not.}
+\label{fig:b-netfeat}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f11_leakage.png}
+\caption{The two-tier leakage failure of the previous section, in the order it
+was found. Panel A is the ablation ladder read from the contaminated end
+downward: adding the tier-1 features lifts household-clustered $R^2$ to 0.644 and
+the tier-2 kin-composition features still hold it at 0.553, while the
+exogenous tier-3 shape features leave the base covariates where they were. An
+improvement of that size on an outcome this degenerate is more so a consequence than a result. Panel B is the mechanism for tier 1: the informal share drops below one
+exactly when a formal helper is present, so \texttt{net\_any\_formal} and the
+outcome are two encodings of one fact. Points are jittered horizontally.}
+\label{fig:b-leakage}
+\end{minipage}
+\end{figure}
+\newpage
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f12_ablation_and_shap.png}
+\caption{Feature-block ablation with the final model's SHAP summary. Blocks are
+added cumulatively under identical folds; the shaded band is one standard
+deviation across folds and is wide enough that the last two steps overlap, so
+the apparent gain from network structure is not distinguishable from noise.}
+\label{fig:b-ablation}
+\end{minipage}
+\end{figure}
+
+\subsection*{A.4 The cross-national crosswalk}\leavevmode\par\nobreak
+\needspace{6\baselineskip}
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f13_embedding_space.png}
+\caption{The embedding space the matcher searches: a t-SNE projection of LSA
+embeddings of variable descriptions, 14 HRS items against all 403 ELSA derived
+variables. Dashed lines connect each HRS item to its hand-coded true
+counterpart; short lines mean the embedding placed them close without being told
+they match. t-SNE distances are not metric, so read adjacency, not scale.}
+\label{fig:b-embed}
+\end{minipage}
+\end{figure}
+\newpage
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f14_matching_accuracy.png}
+\caption{How well that search does: Panel A scores each matcher against the
+hand-coded key at top-1, top-3 and top-5, where top-3 means the true counterpart
+appeared among the three highest-scoring candidates out of 403. Panel B is the
+per-item similarity margin, the gap between the best and second-best candidate,
+sorted low to high with incorrect matches in orange; every error falls in the
+bottom four, which is what makes the margin usable as a rule to sort rather than a
+diagnostic after the fact. Panel C separates the similarity scores of true pairs
+from all non-matching pairs. Fourteen items is a small answer key, so this
+establishes that the approach is viable, not that it is validated at scale.}
+\label{fig:b-matching}
+\end{minipage}
+\end{figure}
+
+\subsection*{A.5 Interaction structure}\leavevmode\par\nobreak
+\needspace{6\baselineskip}
+
+\begin{figure}[!ht]
+\centering
+\begin{minipage}{0.76\linewidth}
+\centering
+\includegraphics[width=\linewidth]{f16_shap_interactions.png}
+\caption{The strongest interaction decomposed directly. Panel A splits the
+sample by living arrangement and plots the mean informal share across quartiles
+of care intensity; non-parallel lines are the interaction. Panel B shows the
+SHAP interaction values for the same pair from the tuned booster.}
+\label{fig:b-shapinter}
+\end{minipage}
+\end{figure}
+
+\FloatBarrier
+\subsection*{A.6 The remaining tables}\leavevmode\par\nobreak
+\needspace{6\baselineskip}
+
+The sixteen tables not shown in the body are reproduced here. Where a table runs to every feature, the rows with the largest effect are shown and the full version is the committed CSV. All are regenerated by \texttt{run\_all.sh}.
+
+\begin{table}[!ht]
+\centering
+\caption{Descriptives for the continuous analysis variables, HRS 2022, $n=2{,}142$ care recipients.}
+\label{tab:b-desc}
+\footnotesize
+\begin{tabular}{lrrrrrr}
+\toprule
+Variable & $n$ & Mean & SD & Min & Max & Miss.\% \\
+\midrule
+informal\_share & 2142 & 0.896 & 0.282 & 0 & 1 & 0 \\
+total\_care\_hours & 2142 & 125.925 & 182.615 & 1 & 744 & 0 \\
+n\_helpers & 2142 & 1.697 & 1.016 & 1 & 8 & 0 \\
+adl\_count & 2089 & 2.263 & 1.913 & 0 & 6 & 2.5 \\
+iadl\_count & 2142 & 1.739 & 1.428 & 0 & 5 & 0 \\
+age & 2142 & 72.372 & 12.332 & 50 & 101 & 0 \\
+years\_school & 2129 & 11.921 & 3.542 & 0 & 17 & 0.6 \\
+word\_recall & 1697 & 7.933 & 3.473 & 0 & 20 & 20.8 \\
+rate\_memory & 1808 & 3.470 & 0.988 & 1 & 5 & 15.6 \\
+n\_children & 2142 & 3.828 & 2.766 & 0 & 22 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Binary analysis variables and the share of the sample at 1.}
+\label{tab:b-binary}
+\small
+\begin{tabular}{lrr}
+\toprule
+Variable & Share at 1 & $n$ non-missing \\
+\midrule
+female & 0.676 & 2142 \\
+lives\_alone & 0.280 & 2133 \\
+lives\_with\_partner & 0.459 & 2133 \\
+lives\_with\_relative & 0.234 & 2133 \\
+nursing\_home & 0.034 & 2142 \\
+proxy & 0.154 & 2142 \\
+stroke & 0.215 & 2139 \\
+dementia & 0.129 & 1986 \\
+alzheimers & 0.073 & 2138 \\
+neuro\_dx & 0.345 & 2142 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Importance-rank agreement between standardized OLS coefficients and mean absolute SHAP, ordered by the size of the disagreement. Showing 15 of 33 rows; the full table is the committed CSV.}
+\label{tab:b-ranks}
+\footnotesize
+\begin{tabular}{lrrrrr}
+\toprule
+Feature & $|\beta|$ & Mean $|$SHAP$|$ & OLS rk & SHAP rk & Gap \\
+\midrule
+proxy & 0.034 & 0.000 & 4 & 28 & -24 \\
+rate\_memory\_missing & 0.036 & 0.001 & 3 & 25 & -22 \\
+dementia\_missing & 0.020 & 0.000 & 10 & 29 & -19 \\
+total\_care\_hours & 0.007 & 0.030 & 20 & 2 & 18 \\
+alzheimers & 0.010 & 0.000 & 16 & 33 & -17 \\
+years\_school & 0.004 & 0.004 & 28 & 12 & 16 \\
+n\_children & 0.006 & 0.005 & 24 & 9 & 15 \\
+iadl\_count & 0.001 & 0.002 & 33 & 19 & 14 \\
+self\_rated\_health & 0.004 & 0.002 & 29 & 16 & 13 \\
+lives\_alone & 0.013 & 0.035 & 14 & 1 & 13 \\
+heart & 0.006 & 0.003 & 27 & 15 & 12 \\
+nursing\_home & 0.033 & 0.003 & 5 & 14 & -9 \\
+diabetes & 0.004 & 0.001 & 30 & 21 & 9 \\
+word\_recall\_missing & 0.007 & 0.000 & 22 & 30 & -8 \\
+kids\_within\_10mi & 0.012 & 0.001 & 15 & 22 & -7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Bounded against unbounded specifications; only the linear model predicts outside the unit interval.}
+\label{tab:b-twopart}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Specification & Test $R^2$ & Test MAE & Preds.\ outside $[0,1]$ \\
+\midrule
+Intercept only & -0.007 & --- & 0 \\
+OLS & 0.011 & 0.164 & 58 \\
+Fractional logit (GLM binomial) & 0.032 & 0.154 & 0 \\
+Two-part (logit + conditional GLM) & 0.035 & 0.154 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Two-part model coefficients: Part 1 is the probability of any formal care, part 2 the conditional share. Showing 15 of 33 rows; the full table is the committed CSV.}
+\label{tab:b-2pcoef}
+\footnotesize
+\begin{tabular}{lrrl}
+\toprule
+Feature & Part 1 (any formal) & Part 2 (cond.\ share) & Sign flip \\
+\midrule
+nursing\_home & -0.520 & -0.854 & False \\
+lives\_with\_partner & -0.481 & 0.745 & True \\
+age & 0.421 & 0.320 & False \\
+rate\_memory\_missing & 0.333 & 0.078 & False \\
+lives\_with\_relative & -0.326 & 0.369 & True \\
+total\_care\_hours & 0.308 & 0.522 & False \\
+adl\_count & 0.299 & -0.126 & True \\
+rate\_memory & -0.259 & 0.007 & True \\
+race\_black & 0.249 & 0.021 & False \\
+word\_recall\_missing & -0.238 & -0.441 & False \\
+kids\_within\_10mi\_missing & 0.212 & -0.171 & True \\
+kids\_within\_10mi & -0.188 & 0.023 & True \\
+stroke & 0.144 & 0.014 & False \\
+proxy & -0.124 & 0.187 & True \\
+race\_other & 0.120 & 0.126 & False \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Naive against household-grouped cross-validation. Grouping scores higher, the opposite of the expected direction, and the gap sits inside fold noise.}
+\label{tab:b-cv}
+\footnotesize
+\begin{tabular}{lrrp{0.34\linewidth}}
+\toprule
+Design & Mean $R^2$ & SD across folds & Note \\
+\midrule
+Naive 5-fold KFold (splits individuals) & 0.0703 & 0.0390 & leaks 10\% of rows across the split \\
+Household GroupKFold (splits households) & 0.0874 & 0.0425 & adopted as default; difference from naive is within fold noise \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Unweighted against survey-weighted coefficients. Weighting drops the 73 nursing-home residents, who carry no weight. Showing 15 of 33 rows; the full table is the committed CSV.}
+\label{tab:b-wtcoef}
+\footnotesize
+\begin{tabular}{lrrrrl}
+\toprule
+Feature & Unwt.\ $\beta$ & Wt.\ $\beta$ & Unwt.\ $P$ & Wt.\ $P$ & Flips \\
+\midrule
+alzheimers & -0.009 & 0.007 & 0.856 & 0.797 & False \\
+widowed & 0.001 & -0.013 & 0.944 & 0.344 & False \\
+n\_children & -0.001 & 0.009 & 0.853 & 0.220 & False \\
+lives\_with\_relative & 0.026 & 0.037 & 0.142 & 0.047 & True \\
+hispanic & -0.015 & -0.025 & 0.078 & 0.004 & True \\
+dementia\_missing & 0.018 & 0.008 & 0.728 & 0.776 & False \\
+sep\_divorced & -0.001 & -0.011 & 0.917 & 0.333 & False \\
+rate\_memory & 0.026 & 0.017 & 0.000 & 0.015 & False \\
+age & -0.014 & -0.005 & 0.131 & 0.539 & False \\
+lives\_alone & -0.023 & -0.016 & 0.197 & 0.412 & False \\
+word\_recall & 0.012 & 0.005 & 0.099 & 0.524 & False \\
+self\_rated\_health & -0.004 & 0.003 & 0.605 & 0.637 & False \\
+race\_black & -0.006 & 0.001 & 0.461 & 0.888 & False \\
+iadl\_count & -0.001 & -0.007 & 0.920 & 0.384 & False \\
+dementia & 0.011 & 0.017 & 0.157 & 0.024 & True \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{How survey weighting moves the descriptives.}
+\label{tab:b-wtdesc}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Variable & Unweighted & Weighted & Difference & \%\ change \\
+\midrule
+informal\_share & 0.891 & 0.896 & 0.005 & 0.5 \\
+adl\_count & 2.178 & 2.103 & -0.075 & -3.4 \\
+iadl\_count & 1.723 & 1.714 & -0.009 & -0.5 \\
+age & 74.108 & 73.362 & -0.746 & -1.0 \\
+lives\_alone & 0.262 & 0.223 & -0.039 & -14.9 \\
+lives\_with\_partner & 0.469 & 0.535 & 0.066 & 14.1 \\
+nursing\_home & 0 & 0 & 0 & --- \\
+stroke & 0.212 & 0.205 & -0.007 & -3.5 \\
+dementia & 0.131 & 0.132 & 0.001 & 0.6 \\
+n\_children & 3.976 & 3.757 & -0.219 & -5.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{The nine care-network features. These correlations are what a leakage scan sees, and they do not reveal that six of the nine encode the outcome.}
+\label{tab:b-netfeat}
+\footnotesize
+\begin{tabular}{lrrrrr}
+\toprule
+Feature & Mean & SD & Min & Max & $r$ with outcome \\
+\midrule
+net\_size & 1.697 & 1.016 & 1 & 8 & -0.071 \\
+net\_n\_informal & 1.566 & 1.007 & 0 & 7 & 0.213 \\
+net\_hhi\_hours & 0.835 & 0.226 & 0.230 & 1 & 0.071 \\
+net\_top\_helper\_share & 0.873 & 0.189 & 0.250 & 1 & 0.066 \\
+net\_has\_spouse & 0.392 & 0.488 & 0 & 1 & 0.249 \\
+net\_n\_children & 0.695 & 0.825 & 0 & 6 & 0.097 \\
+net\_n\_kin\_types & 1.261 & 0.608 & 0 & 5 & 0.309 \\
+net\_generation\_span & 0.218 & 0.470 & 0 & 3 & 0.096 \\
+net\_any\_formal & 0.111 & 0.314 & 0 & 1 & -0.749 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Neural-network architecture search. No architecture beats the mean, and the best is the smallest.}
+\label{tab:b-arch}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Architecture & Layers & Units & CV $R^2$ & SD \\
+\midrule
+(8,) & 1 & 8 & -0.1703 & 0.0296 \\
+(64, 32, 16) & 3 & 112 & -0.1963 & 0.0438 \\
+(64, 32) & 2 & 96 & -0.2066 & 0.0360 \\
+(32,) & 1 & 32 & -0.2123 & 0.0568 \\
+(128, 64) & 2 & 192 & -0.2227 & 0.0300 \\
+(32, 16) & 2 & 48 & -0.2656 & 0.0589 \\
+(64,) & 1 & 64 & -0.3288 & 0.0581 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Model families compared under identical household-grouped folds.}
+\label{tab:b-family}
+\small
+\begin{tabular}{lrr}
+\toprule
+Model family & CV $R^2$ & SD across folds \\
+\midrule
+XGBoost (tuned in script 02) & 0.0874 & 0.0425 \\
+Ridge (linear) & 0.0614 & 0.0160 \\
+Intercept only & -0.0003 & 0.0004 \\
+MLP (8,), alpha=1 & -0.0014 & 0.0275 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{The ablation ladder, including the two excluded leakage tiers; the last two steps overlap within one fold standard deviation.}
+\label{tab:b-ablation}
+\footnotesize
+\begin{tabular}{p{0.40\linewidth}rrr}
+\toprule
+Feature block & $k$ & CV $R^2$ & SD \\
+\midrule
+Demographics only & 6 & -0.0042 & 0.0109 \\
++ household structure & 15 & 0.0454 & 0.0251 \\
++ clinical need & 27 & 0.0593 & 0.0369 \\
++ care intensity (full base set) & 33 & 0.0874 & 0.0425 \\
++ network shape, tier 3 (FINAL) & 36 & 0.0864 & 0.0376 \\
++ tier 2 endogenous (excluded) & 40 & 0.5529 & 0.0199 \\
++ tier 1 leakage (excluded) & 35 & 0.6439 & 0.0234 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Final-model SHAP attribution. Showing 15 of 36 rows; the full table is the committed CSV.}
+\label{tab:b-shap}
+\footnotesize
+\begin{tabular}{lr}
+\toprule
+Feature & Mean $|$SHAP$|$ \\
+\midrule
+lives\_alone & 0.0298 \\
+total\_care\_hours & 0.0261 \\
+lives\_with\_partner & 0.0260 \\
+rate\_memory & 0.0129 \\
+adl\_count & 0.0112 \\
+age & 0.0089 \\
+net\_top\_helper\_share & 0.0067 \\
+word\_recall & 0.0058 \\
+n\_children & 0.0054 \\
+lives\_with\_relative & 0.0045 \\
+heart & 0.0043 \\
+years\_school & 0.0042 \\
+widowed & 0.0031 \\
+net\_hhi\_hours & 0.0030 \\
+psych & 0.0030 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{The reconstructed HRS--ELSA crosswalk, item by item. All four errors fall in the harder-construct group.}
+\label{tab:b-crosswalk}
+\footnotesize
+\begin{tabular}{llrll}
+\toprule
+HRS var & ELSA match & Sim. & Correct & Difficulty \\
+\midrule
+SG014 & headldr & 0.587 & True & easy \\
+SG016 & headlwa & 0.748 & True & easy \\
+SG021 & headlba & 0.812 & True & easy \\
+SG023 & headlea & 0.597 & True & easy \\
+SG025 & headlbe & 0.899 & True & easy \\
+SG030 & headlwc & 0.702 & True & easy \\
+SG041 & headlpr & 0.550 & True & easy \\
+SG044 & headlme & 0.446 & False & easy \\
+SG047 & headlph & 0.826 & True & easy \\
+SG050 & headlme & 1.000 & True & easy \\
+SAGE & age & 0.708 & True & easy \\
+SD174 & perid & 0.579 & False & hard \\
+SCHLYRS & numbuad & 0.819 & False & hard \\
+SLIVARR & smokerstat & 0.453 & False & hard \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Matcher accuracy against the hand-coded key, scored on 14 HRS items against all 403 ELSA derived variables. Random selection scores 0.2\% at top-1.}
+\label{tab:b-match}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Matcher & Top-1 & Top-3 & Top-5 \\
+\midrule
+Lexical overlap (Jaccard) & 0.643 & 0.714 & 0.714 \\
+LSA embeddings (cosine) & 0.643 & 0.714 & 0.786 \\
+Hybrid (equal weight) & 0.714 & 0.714 & 0.786 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{The strongest pairwise SHAP interactions, of 630 candidate pairs.}
+\label{tab:b-shapinter}
+\footnotesize
+\begin{tabular}{llr}
+\toprule
+Feature A & Feature B & Mean $|$interaction$|$ \\
+\midrule
+lives\_alone & total\_care\_hours & 0.0065 \\
+lives\_with\_partner & total\_care\_hours & 0.0061 \\
+lives\_alone & rate\_memory & 0.0054 \\
+age & lives\_alone & 0.0032 \\
+lives\_with\_partner & net\_top\_helper\_share & 0.0027 \\
+lives\_with\_partner & lives\_with\_relative & 0.0024 \\
+age & lives\_with\_partner & 0.0022 \\
+lives\_with\_partner & heart & 0.0021 \\
+years\_school & lives\_with\_partner & 0.0021 \\
+lives\_with\_relative & total\_care\_hours & 0.0020 \\
+rate\_memory & total\_care\_hours & 0.0020 \\
+n\_children & total\_care\_hours & 0.0020 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
+\section*{Agentic Analysis}
+
+I chose the research question, the outcome
+definition, the model families to compare, and the interaction hypotheses; I
+executed and read every line of code; and I traced every number I report back to
+a codebook or an output table. Claude was used for a few sparse coding errors throughout, as well as for a couple of questions whose answers were rejected. The space below is for the couple of
+scripts where the assistant was wrong (the times I had asked for help).
+
+\paragraph{Rejected: a harmonization test that scored 100\%} The first version
+of the crosswalk experiment reported perfect top-one accuracy for all three
+matchers, including a lexical baseline that should not have been competitive; however, inspecting the table explained it. The assistant had written the
+HRS side of the key itself, as paraphrases of the ELSA wording, and had drawn
+candidates from only 39 health variables. The matcher was scoring on words the
+assistant had planted and choosing among a shortlist it had pre-filtered.
+
+\emph{How it was wrong:} not a coding error. Every line ran, and the reported
+metric was correctly computed on the data it was given. The failure was in
+constructing an evaluation that could not produce a negative result. Rewriting
+the key from verbatim codebook labels and opening the candidate set to all 403
+ELSA derived variables dropped accuracy to 71\%, which is the number reported
+here. A confirmatory result had been manufactured by a badly built test, and
+nothing in the output signaled it.
+
+\paragraph{Rejected: a narrative written before the number existed} Asked to
+examine household clustering, the assistant produced a paragraph explaining that
+clustering had inflated cross-validated performance and that grouped splitting
+corrected it; the direction was plausible and the explanation seemed confident. The
+computation, run afterward by hand, showed grouped cross-validation scoring
+higher than naive splitting, with the gap smaller than the between-fold
+standard deviation.
+
+\emph{How it was wrong:} the explanation preceded the evidence and was fitted to
+the expected result rather than the observed one. Only 5.3\% of households
+contribute more than one respondent, so there is too little duplication to leak.
+Grouped splitting is retained as the defensible design, but the paper reports
+the non-result. Had I accepted the draft, the paper would have contained a
+fabricated finding.
+
+\paragraph{Failure: two-tier target leakage, introduced by the assistant} At first, the
+nine care-network features were developed with Claude and were not flagged as risky. Including them lifted held-out $R^2$ from 0.087 to
+0.644.
+
+\emph{How it was wrong, tier one:} \texttt{net\_any\_formal} is true exactly
+when the informal share is below one. The feature and the outcome are two
+encodings of the same fact. This was caught in the first review pass, because
+the name says what it does.
+
+\emph{How it was wrong, tier two:} the kin-composition features are zero
+when nobody in the roster is family, which is the same event as the informal
+share being zero. Ninety-four respondents have \texttt{net\_n\_kin\_types = 0}
+and their mean informal share is 0.000. This survived a review pass and
+a correlation scan, because no single feature looked unusual on its own. It was
+found only by looking at each feature and by hand, asking what event makes it zero. The assistant
+then described the corrected set as ``safe''.
+
+The outcome is
+constructed from the helper roster, so every roster-derived feature is
+downstream of it by design. The operative test is not ``is this correlated with
+the outcome'' but ``could this have been known without knowing the outcome.''
+
+\paragraph{What this implies} All the errors imply that the output is internally
+consistent and externally wrong, produced with the same confidence whether right
+or not. None would have been caught by a test suite, because in each case the
+code did what it said. Each surfaced only when I asked what a quantity
+meant rather than whether the script ran. AI assistance moved the
+bottleneck from writing code to verifying that the code answered the intended
+question, and the second is the harder job; thus, after these initial asks failed, barring a few errors (as mentioned above), AI assistance was minimized.
+
+\paragraph{Website} AI was lastly used to develop the source code for the launched website \url{https://vercel.com/alanna2/care-capacity-site} with a descriptive prompt for the overview, most aspects were left blank to insert the graphs/information by hand.
 
 \end{document}
