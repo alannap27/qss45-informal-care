@@ -76,10 +76,10 @@ older adults who need help with basic daily activities, what determines
 whether that help arrives entirely from family, or whether paid and
 institutional providers enter?
 
-Three frameworks make competing predictions. Andersen's behavioral model partitions determinants into predisposing
+Three frameworks make competing predictions. Andersen's behavioral model \cite{andersen1995} partitions determinants into predisposing
 characteristics, enabling resources, and need; it supplies the standard equity criterion: in a well-functioning system need should
-dominate utilization, while reliance on enabling resources measures inequity. Cantor's hierarchical compensatory model holds that older
-adults draw on a ranked ordering of caregivers(spouse, adult children, other kin, formal services), exhausting each tier sequentially; this predicts household composition dominates. Litwak's task-specific model uniquely requires an interaction: informal and formal providers are matched to tasks by comparative advantage, meaning the effect of rising need depends on household availability.
+dominate utilization, while reliance on enabling resources measures inequity. Cantor's hierarchical compensatory model \cite{cantor1979} holds that older
+adults draw on a ranked ordering of caregivers(spouse, adult children, other kin, formal services), exhausting each tier sequentially; this predicts household composition dominates. Litwak's task-specific model \cite{litwak1985} uniquely requires an interaction: informal and formal providers are matched to tasks by comparative advantage, meaning the effect of rising need depends on household availability.
 
 \paragraph{Related work.} Cross-national comparisons establish that caregiving composition varies sharply with a country's long-term care system \cite{jang2012,oecd2023}, and microsimulation projects European
 informal care demand rising through 2050 \cite{cattaneo2025}. Work closest to
@@ -292,9 +292,9 @@ Standard errors on interaction coefficients are clustered on household to match.
 
 \paragraph{Model families} Five specifications are compared on identical folds
 and identical features: (i) ordinary least squares on standardized predictors;
-(ii) a gradient-boosted regressor (XGBoost) with depth, tree count, shrinkage
+(ii) a gradient-boosted regressor (XGBoost) \cite{chen2016} with depth, tree count, shrinkage
 and minimum child weight selected by nested five-fold cross-validation on the
-training split; (iii) a fractional-response GLM with a binomial family and logit
+training split; (iii) a fractional-response GLM \cite{papke1996} with a binomial family and logit
 link, which uses the binomial likelihood as a quasi-likelihood and guarantees
 predictions inside $[0,1]$; (iv) an explicit two-part model, a logit for whether
 any formal care is present followed by a conditional model for the share among
@@ -321,7 +321,7 @@ rather than a binary outcome, and predictions are confined to $(0,1)$ by
 construction.
 
 \paragraph{Interpretation} Linear models are interpreted through standardized
-coefficients with 95\% confidence intervals; tree models through SHAP values,
+coefficients with 95\% confidence intervals; tree models through SHAP values \cite{lundberg2017},
 which decompose each individual prediction into per-feature contributions.
 These are different quantities: a coefficient is a partial effect identical for
 every respondent, a SHAP value is a marginal contribution that varies across
@@ -654,6 +654,8 @@ the QSS 45 cohort for feedback on an earlier version of these results.}
 \showacknow
 
 \bibliography{qss45}
+
+\newpage
 
 \section*{Appendix A. The remaining figures}
 
@@ -1285,5 +1287,7 @@ bottleneck from writing code to verifying that the code answered the intended
 question, and the second is the harder job; thus, after these initial asks failed, barring a few errors (as mentioned above), AI assistance was minimized.
 
 \paragraph{Website} AI was lastly used to develop the source code for the launched website \url{https://vercel.com/alanna2/care-capacity-site} with a descriptive prompt for the overview, most aspects were left blank to insert the graphs/information by hand.
+
+\paragraph{Representative transcript} Abridged versions are included in the directory as mentioned above; however, one full representative transcript is also available in the GitHub repository.
 
 \end{document}
