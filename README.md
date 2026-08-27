@@ -153,6 +153,8 @@ not describing the same people.
 
 ## Scripts
 
+There are also Jupyter Notebook equivalents of all of the below. 
+
 `code/utils.py` holds every shared function: path resolution, HRS code cleaning,
 the feature builder, the network feature constructor, and the metric helpers.
 `code/figstyle.py` holds the figure layout rules, including the two-pass
